@@ -816,6 +816,17 @@
     color:var(--ink-faint);
   }
 
+  .c-login-error{
+    background:#FBE9E7;
+    border:1px solid var(--margin);
+    color:#8A2E22;
+    border-radius:4px;
+    padding:9px 12px;
+    font-size:12.5px;
+    line-height:1.45;
+    margin-bottom:12px;
+  }
+
   .c-reset-link{
     display:block;
     text-align:center;
@@ -847,19 +858,23 @@
         <button class="c-reset-link" id="showLoginLinkBtn" style="margin-top:16px;">J'ai déjà un profil sur un autre appareil</button>
       </div>
 
-      <div id="onboardingLoginWrap" style="display:none;">
+      <!-- Un vrai <form> : la touche Entrée valide (clavier d'ordinateur) et
+           les gestionnaires de mots de passe (Windows, Edge, Chrome) remplissent
+           les bons champs grâce aux attributs autocomplete. -->
+      <form id="onboardingLoginWrap" style="display:none;" novalidate>
         <div class="c-field">
-          <label>Email du profil</label>
-          <input type="text" id="loginEmailInput" placeholder="ton.profil@exemple.com">
+          <label for="loginEmailInput">Email du profil</label>
+          <input type="email" id="loginEmailInput" name="email" autocomplete="username" autocapitalize="none" spellcheck="false" placeholder="ton.profil@exemple.com">
         </div>
         <div class="c-field">
-          <label>Mot de passe</label>
-          <input type="password" id="loginPasswordInput" placeholder="••••••••">
+          <label for="loginPasswordInput">Mot de passe</label>
+          <input type="password" id="loginPasswordInput" name="password" autocomplete="current-password" placeholder="••••••••">
         </div>
-        <button class="c-submit" id="loginSubmitBtn">Se connecter</button>
-        <button class="c-reset-link" id="forgotPasswordBtn" style="margin-top:12px;">Mot de passe oublié ?</button>
-        <button class="c-reset-link" id="showNewLinkBtn" style="margin-top:16px;">Créer un nouveau profil à la place</button>
-      </div>
+        <div class="c-login-error" id="loginError" role="alert" style="display:none;"></div>
+        <button type="submit" class="c-submit" id="loginSubmitBtn">Se connecter</button>
+        <button type="button" class="c-reset-link" id="forgotPasswordBtn" style="margin-top:12px;">Mot de passe oublié ?</button>
+        <button type="button" class="c-reset-link" id="showNewLinkBtn" style="margin-top:16px;">Créer un nouveau profil à la place</button>
+      </form>
     </div>
   </div>
 
@@ -886,11 +901,11 @@
         <div class="bilan-sub">Crée un email + mot de passe pour ce profil, pour pouvoir t'y reconnecter depuis un autre téléphone ou ordinateur.</div>
         <div class="c-field">
           <label>Email</label>
-          <input type="text" id="linkEmailInput" placeholder="ton.profil@exemple.com">
+          <input type="email" id="linkEmailInput" name="email" autocomplete="username" autocapitalize="none" spellcheck="false" placeholder="ton.profil@exemple.com">
         </div>
         <div class="c-field">
           <label>Mot de passe</label>
-          <input type="password" id="linkPasswordInput" placeholder="8 caractères minimum">
+          <input type="password" id="linkPasswordInput" name="new-password" autocomplete="new-password" placeholder="8 caractères minimum">
         </div>
         <button class="c-submit" id="linkSaveBtn">Sauvegarder mon profil</button>
       </div>
@@ -3154,9 +3169,23 @@
       } else {
         $('#onboardingLoadingWrap').style.display = 'none';
         $('#onboardingFormWrap').style.display = 'block';
+        // Connecté avec un email mais sans profil (compte créé ailleurs) :
+        // on demande le prénom au lieu de réafficher le formulaire de connexion.
+        if(auth.currentUser && !auth.currentUser.isAnonymous){
+          $('#onboardingLoginWrap').style.display = 'none';
+          $('#onboardingNewWrap').style.display = 'block';
+          showToast(`Connecté (${auth.currentUser.email}) — choisis ton prénom`, 4000);
+        }
       }
     }catch(e){
-      $('#onboardingLoadingWrap').innerHTML = '<div class="bilan-title">Erreur<span style="color:var(--margin);">.</span></div><div class="bilan-sub">Connexion impossible. Vérifie ta connexion internet et recharge la page.</div>';
+      console.error("[Carnet] Chargement du profil", e);
+      // La zone de chargement peut être masquée (après le formulaire) : on la réaffiche.
+      $('#onboardingFormWrap').style.display = 'none';
+      $('#onboardingLoadingWrap').style.display = 'block';
+      const detail = e && e.code === 'permission-denied'
+        ? "Accès refusé par la base de données (règles Firestore)."
+        : "Vérifie ta connexion internet (ou un bloqueur de contenu / la protection contre le suivi du navigateur) et recharge la page.";
+      $('#onboardingLoadingWrap').innerHTML = `<div class="bilan-title">Erreur<span style="color:var(--margin);">.</span></div><div class="bilan-sub">Connexion impossible. ${detail}${e && e.code ? ' ('+escapeHtml(e.code)+')' : ''}</div>`;
     }
   }
 
@@ -3178,6 +3207,7 @@
     $('#onboardingLoginWrap').style.display = 'block';
   });
   $('#showNewLinkBtn').addEventListener('click', ()=>{
+    showLoginError('');
     $('#onboardingLoginWrap').style.display = 'none';
     $('#onboardingNewWrap').style.display = 'block';
   });
@@ -3195,7 +3225,11 @@
       'auth/operation-not-allowed': "Connexion par email désactivée : active « Adresse e-mail/Mot de passe » dans Firebase > Authentication > Sign-in method",
       'auth/too-many-requests': "Trop de tentatives : réessaie dans quelques minutes",
       'auth/user-disabled': "Ce compte a été désactivé",
-      'auth/network-request-failed': "Pas de connexion internet",
+      'auth/network-request-failed': "Serveur injoignable : vérifie ta connexion internet, ou désactive le bloqueur de contenu / la protection « stricte » contre le suivi pour ce site",
+      'auth/operation-not-supported-in-this-environment': "Ouvre l'app depuis son adresse internet (https://…), pas depuis un fichier sur l'ordinateur",
+      'auth/web-storage-unsupported': "Le navigateur bloque le stockage du site (navigation privée ou cookies bloqués) : autorise-les pour ce site",
+      'auth/unauthorized-domain': "Ce site n'est pas autorisé dans Firebase (Authentication > Settings > Authorized domains)",
+      'auth/internal-error': "Erreur du serveur de connexion, réessaie dans un instant",
       'auth/weak-password': "Mot de passe trop faible (8 caractères minimum)",
       'auth/email-already-in-use': "Cet email est déjà utilisé par un autre profil — connecte-toi avec",
       'auth/credential-already-in-use': "Cet email est déjà utilisé par un autre profil — connecte-toi avec",
@@ -3205,10 +3239,23 @@
     return msgs[code] || (fallback + (code ? ` (${code})` : ''));
   }
 
-  $('#loginSubmitBtn').addEventListener('click', async ()=>{
+  // Erreur affichée sous le formulaire (reste visible, contrairement au toast).
+  function showLoginError(msg){
+    const box = $('#loginError');
+    box.textContent = msg || '';
+    box.style.display = msg ? 'block' : 'none';
+  }
+
+  $('#onboardingLoginWrap').addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const btn = $('#loginSubmitBtn');
+    if(btn.disabled) return;
     const email = $('#loginEmailInput').value.trim();
     const password = $('#loginPasswordInput').value;
-    if(!email || !password){ showToast("Indique ton email et ton mot de passe"); return; }
+    if(!email || !password){ showLoginError("Indique ton email et ton mot de passe."); return; }
+    showLoginError('');
+    btn.disabled = true;
+    btn.textContent = "Connexion…";
     try{
       sessions = [];
       evaluations = [];
@@ -3217,8 +3264,12 @@
       isAdmin = false;
       await signInWithEmailAndPassword(auth, email, password);
       // onAuthStateChanged prend le relais : charge le profil existant.
-    }catch(e){
-      showToast(authErrorMessage(e, "Connexion impossible"), 4500);
+    }catch(err){
+      console.error("[Carnet] Connexion", err);
+      showLoginError(authErrorMessage(err, "Connexion impossible"));
+    }finally{
+      btn.disabled = false;
+      btn.textContent = "Se connecter";
     }
   });
 
@@ -3395,8 +3446,16 @@
       loadOrPromptProfile();
     } else {
       currentUid = null;
-      signInAnonymously(auth).catch(()=>{
-        $('#onboardingLoadingWrap').innerHTML = '<div class="bilan-title">Erreur<span style="color:var(--margin);">.</span></div><div class="bilan-sub">Connexion au serveur impossible. Vérifie ta connexion internet et recharge la page.</div>';
+      signInAnonymously(auth).catch((e)=>{
+        console.error("[Carnet] Connexion anonyme", e);
+        $('#onboardingFormWrap').style.display = 'none';
+        $('#onboardingLoadingWrap').style.display = 'block';
+        // Fichier ouvert en double-cliquant dessus (file://) : Firebase Auth
+        // n'y fonctionne pas, il faut passer par l'adresse du site.
+        const detail = location.protocol === 'file:'
+          ? "L'app a été ouverte depuis un fichier sur l'ordinateur. Ouvre-la plutôt depuis son adresse internet (https://…github.io/…)."
+          : "Vérifie ta connexion internet (ou désactive un bloqueur de contenu / la protection « stricte » contre le suivi pour ce site) et recharge la page.";
+        $('#onboardingLoadingWrap').innerHTML = `<div class="bilan-title">Erreur<span style="color:var(--margin);">.</span></div><div class="bilan-sub">Connexion au serveur impossible. ${detail}${e && e.code ? ' ('+escapeHtml(e.code)+')' : ''}</div>`;
       });
     }
   });
