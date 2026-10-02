@@ -32,6 +32,8 @@
   --hl:#F7E64B;
   --hl-ink:#2A2610;
   --focus:0 0 0 3px rgba(29,63,166,.28);
+  --on-blue:#fff;
+  --font:'Schibsted Grotesk', system-ui, -apple-system, 'Segoe UI', sans-serif;
 }
 @media (prefers-color-scheme: dark){
   :root{
@@ -60,7 +62,7 @@
 [hidden]{display:none !important}
 html,body{margin:0;height:100%}
 body{
-  font-family:'Schibsted Grotesk', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-family:var(--font);
   font-size:14px;line-height:1.45;color:var(--ink);
   background-color:var(--paper);
   background-image:
@@ -125,7 +127,7 @@ main{flex:1;min-height:0}
 .timerbox{display:flex;align-items:center;gap:12px;background:var(--panel-2);border-radius:10px;padding:10px 12px;margin-bottom:14px}
 .timer-digits{font-size:30px;font-weight:700;letter-spacing:-.02em;flex:1}
 .timer-digits.run{color:var(--blue)}
-.btn-round{width:40px;height:40px;border-radius:50%;border:none;background:var(--blue);color:#fff;font-size:15px;display:grid;place-items:center}
+.btn-round{width:40px;height:40px;border-radius:50%;border:none;background:var(--blue);color:var(--on-blue);font-size:15px;display:grid;place-items:center}
 .btn-sm{border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:5px 9px;font-size:12.5px;font-weight:600}
 .btn-sm:disabled{opacity:.4;cursor:default}
 .lbl{display:block;font-size:12.5px;font-weight:600;color:var(--ink-2);margin:10px 0 5px}
@@ -160,7 +162,7 @@ textarea.input{resize:vertical;min-height:52px}
 .switch input:focus-visible + span{box-shadow:var(--focus)}
 .reward{margin-top:12px;font-size:13px;font-weight:600;color:var(--hl-ink);background:var(--hl);border-radius:8px;padding:7px 10px}
 .entry-foot{position:sticky;bottom:-16px;background:var(--panel);padding:4px 0 2px;margin-top:4px}
-.btn-primary{width:100%;margin-top:12px;border:none;background:var(--blue);color:#fff;border-radius:9px;padding:11px;font-weight:700;font-size:14.5px}
+.btn-primary{width:100%;margin-top:12px;border:none;background:var(--blue);color:var(--on-blue);border-radius:9px;padding:11px;font-weight:700;font-size:14.5px}
 .btn-primary:disabled{opacity:.5}
 .btn-line{border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:7px 12px;font-weight:600;font-size:13px}
 .pending{display:flex;justify-content:space-between;align-items:center;gap:8px;background:var(--blue-soft);color:var(--blue);border-radius:8px;padding:7px 10px;font-size:12.5px;font-weight:600;margin-bottom:10px}
@@ -225,17 +227,6 @@ table.t td.num{text-align:right;white-space:nowrap}
 .fuel .ft{font-size:12.5px;margin-top:5px;font-weight:600}
 .fuel.off .ft{color:#8A1F17}
 .nextrank{font-size:12px;margin-top:10px;opacity:.8}
-.buildings{display:flex;flex-direction:column;gap:7px;margin-top:14px}
-.bld{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.55);border-radius:10px;padding:8px 10px}
-@media (prefers-color-scheme: dark){ .bld{background:rgba(0,0,0,.18)} }
-.bld .ic{font-size:20px;width:26px;text-align:center}
-.bld .bt{flex:1;min-width:0}
-.bld .bt b{display:block;font-size:13px}
-.bld .bt small{font-size:11.5px;opacity:.8}
-.bld .own{font-weight:800;font-size:13px;margin-left:4px}
-.buy{border:1.5px solid var(--hl-ink);background:var(--hl-ink);color:var(--hl);border-radius:8px;padding:5px 9px;font-weight:700;font-size:12.5px;white-space:nowrap}
-.buy:disabled{background:transparent;color:var(--hl-ink);opacity:.45;cursor:default}
-.bld.locked{opacity:.6}
 .academy .rules{font-size:12px;margin-top:12px;line-height:1.5;opacity:.85}
 @keyframes pop{0%{transform:scale(1)}40%{transform:scale(1.06)}100%{transform:scale(1)}}
 .academy .big.pop{animation:pop .45s ease}
@@ -284,9 +275,97 @@ svg.chart{width:100%;height:auto;display:block}
 .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(16px);background:var(--ink);color:var(--panel);padding:10px 16px;border-radius:10px;font-weight:600;font-size:13.5px;opacity:0;pointer-events:none;transition:opacity .2s, transform .2s;z-index:80;max-width:90vw}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
+
+/* ---------- Village ---------- */
+.academy .rankbar{height:8px;border-radius:999px;background:rgba(0,0,0,.14);overflow:hidden;margin-top:12px}
+.academy .rankbar i{display:block;height:100%;background:var(--hl-ink);border-radius:999px;transition:width .4s}
+.academy .nextrank{font-size:12px;margin-top:7px;opacity:.85;line-height:1.4}
+.minimap{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:14px}
+.mm{border:none;border-radius:9px;background:rgba(255,255,255,.55);padding:6px 0;text-align:center;color:inherit}
+.mm:hover{background:rgba(255,255,255,.85)}
+.mm .e{font-size:19px;display:block;line-height:1.2}
+.mm b{font-size:11px;display:block}
+.mq{display:flex;justify-content:space-between;gap:8px;font-size:12.5px;margin-top:5px}
+.mq.ok{opacity:.65}
+.academy .acad-btn{width:100%;margin-top:14px;border:2px solid var(--hl-ink);background:transparent;color:var(--hl-ink);border-radius:9px;padding:8px;font-weight:700}
+.academy .acad-btn:hover{background:var(--hl-ink);color:var(--hl)}
+.village{grid-template-columns:minmax(0,1fr) 410px;gap:16px;padding:16px;overflow:auto;align-content:start}
+.vhead{display:flex;align-items:center;gap:14px;margin-bottom:12px;flex-wrap:wrap}
+.vhead .rk{font-size:24px;font-weight:800;letter-spacing:-.02em}
+.vhead .pts{color:var(--ink-2);font-weight:600}
+.vprog{height:8px;border-radius:999px;background:var(--panel-2);overflow:hidden}
+.vprog i{display:block;height:100%;border-radius:999px;background:var(--blue)}
+.vhead .vprog{flex:1;min-width:140px}
+.vrow{display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap}
+.vboard{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;width:calc(100vh - 300px);min-width:420px;max-width:100%;flex:none}
+.vmid{flex:1 1 280px;min-width:260px;display:flex;flex-direction:column;gap:16px}
+.tile{position:relative;border:2px solid var(--line);border-radius:14px;background:var(--panel);overflow:hidden;cursor:pointer;text-align:left;padding:0;display:block;width:100%;color:inherit}
+.tile:hover{border-color:var(--c)}
+.tile.sel{border-color:var(--c);box-shadow:0 0 0 3px color-mix(in srgb, var(--c) 28%, transparent)}
+.tile .art{aspect-ratio:1/1;display:block;background:var(--panel-2)}
+.tile .art svg,.tile .art img{width:100%;height:100%;display:block;object-fit:cover}
+.tile .cap{display:block;padding:7px 10px 9px}
+.tile .cap b{display:block;font-size:13px}
+.tile .cap small{display:block;color:var(--ink-3);font-size:11.5px}
+.tile .bar{display:block;height:5px;border-radius:999px;background:var(--panel-2);margin-top:6px;overflow:hidden}
+.tile .bar i{display:block;height:100%;background:var(--c)}
+.tile .lvl{position:absolute;top:8px;right:8px;background:var(--ink);color:var(--panel);font-size:11.5px;font-weight:800;border-radius:999px;padding:2px 9px}
+.tile .fl{position:absolute;bottom:62px;right:8px;font-size:16px}
+.tile.gold{border-color:#D8A81C}
+.tile.gold .lvl{background:#D8A81C;color:#2A1D00}
+.vside{display:flex;flex-direction:column;gap:16px;min-width:0}
+.dh{display:flex;gap:12px;align-items:center}
+.dh .em{font-size:32px}
+.dh h2{margin:0;font-size:18px;font-weight:800;letter-spacing:-.02em}
+.subh{font-size:14px;margin:16px 0 0}
+.rew{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:9px;padding:8px 10px;margin-top:8px}
+.rew .ico{font-size:18px;width:24px;text-align:center;flex:none}
+.rew.lock{opacity:.55}
+.rew .lv{display:block;font-size:11.5px;font-weight:700;color:var(--ink-3)}
+.rew b{display:block;font-size:13px}
+.rew small{display:block;color:var(--ink-2);font-size:12px;margin-top:1px}
+.qrow{margin-top:12px}
+.qrow .qt{display:flex;justify-content:space-between;gap:8px;font-size:13px}
+.qrow .qb{height:7px;border-radius:999px;background:var(--panel-2);margin-top:5px;overflow:hidden}
+.qrow .qb i{display:block;height:100%;background:var(--green);border-radius:999px}
+.qrow.ok .qt b{color:var(--green)}
+.chron{max-height:230px;overflow:auto;font-size:12.5px}
+.chron div{padding:5px 0;border-bottom:1px solid var(--line);display:flex;gap:10px}
+.chron time{color:var(--ink-3);white-space:nowrap}
+.skins{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:6px}
+.skinbtn{display:inline-flex;align-items:center;gap:7px;border:1.5px solid var(--line);background:var(--panel);border-radius:999px;padding:4px 11px 4px 5px;font-size:12.5px;font-weight:600}
+.skinbtn .sw{width:20px;height:20px;border-radius:50%;border:1px solid var(--line)}
+.skinbtn.on{border-color:var(--blue);background:var(--blue-soft)}
+.skinbtn:disabled{opacity:.5;cursor:default}
+.feat{border:1px solid var(--line);border-radius:9px;padding:8px 10px;margin-bottom:7px}
+.feat b{display:block;font-size:13px}
+.feat small{display:block;color:var(--ink-3);font-size:12px;margin-top:1px}
+.feat.lock{opacity:.6}
+.tbx{display:flex;gap:6px;flex-wrap:wrap;margin:-4px 0 14px}
+.tbx .btn-sm.on{border-color:var(--blue);color:var(--blue);background:var(--blue-soft)}
+.kgoal .track{height:6px;border-radius:999px;background:var(--panel-2);margin-top:8px;overflow:hidden}
+.kgoal .track i{display:block;height:100%;background:var(--blue);border-radius:999px}
+#focusOverlay{position:fixed;inset:0;background:var(--paper);z-index:70;display:grid;place-items:center;text-align:center}
+.fo-m{color:var(--ink-2);font-size:clamp(16px,2vw,24px);font-weight:600}
+.fo-t{font-size:clamp(70px,18vw,260px);font-weight:800;letter-spacing:-.04em;line-height:1.05;margin:8px 0 22px}
+.fo-b{display:flex;gap:14px;justify-content:center;align-items:center}
+.fo-b .btn-round{width:64px;height:64px;font-size:22px}
+
+/* ---------- Thèmes débloqués ---------- */
+html[data-skin="obs"]{color-scheme:dark;--paper:#0E1426;--grid:#151D36;--panel:#141B30;--panel-2:#1B2440;--line:#2A3558;--ink:#EAEFFF;--ink-2:#AEB9DA;--ink-3:#7380A8;--blue:#7FA2FF;--on-blue:#0E1426;--blue-soft:#1E2A52;--red:#FF8A80;--red-soft:#3A1F2A;--amber:#F2B35E;--amber-soft:#3A2D18;--green:#6FD3A0;--green-soft:#17332A;--hl:#F5C84B;--hl-ink:#1D1805}
+html[data-skin="lab"]{color-scheme:light;--paper:#F3F8F7;--grid:#DCEBE8;--panel:#FFFFFF;--panel-2:#EAF3F1;--line:#CFE0DC;--ink:#14302D;--ink-2:#44625E;--ink-3:#7B9692;--blue:#0E8C7F;--on-blue:#fff;--blue-soft:#D8F0EC;--red:#C8352C;--red-soft:#FBE7E5;--amber:#B86A10;--amber-soft:#FCF0DE;--green:#1E7A4E;--green-soft:#E1F3E9;--hl:#FFB45E;--hl-ink:#2B1700}
+html[data-skin="term"]{color-scheme:dark;--font:ui-monospace,'SF Mono',Menlo,Consolas,monospace;--paper:#0B0F0C;--grid:#111A14;--panel:#0F1511;--panel-2:#151D18;--line:#23352A;--ink:#D6F5DE;--ink-2:#8FC9A0;--ink-3:#56836A;--blue:#39E06B;--on-blue:#04140A;--blue-soft:#123020;--red:#FF6B6B;--red-soft:#331616;--amber:#E6C84F;--amber-soft:#2E2A10;--green:#39E06B;--green-soft:#123020;--hl:#39E06B;--hl-ink:#04140A}
+html[data-skin="enc"]{color-scheme:light;--font:Georgia,'Times New Roman',serif;--paper:#FAF5EA;--grid:#EEE4CF;--panel:#FFFDF7;--panel-2:#F4ECDB;--line:#E0D3B8;--ink:#2B2118;--ink-2:#5F5140;--ink-3:#8F7F69;--blue:#7A2E2E;--on-blue:#fff;--blue-soft:#F1DEDA;--red:#B3261E;--red-soft:#F8E1DE;--amber:#9A5B0A;--amber-soft:#F6E8CF;--green:#2F6B3F;--green-soft:#E1EEDD;--hl:#E8D9A8;--hl-ink:#2B2118}
+html[data-skin="parch"]{color-scheme:light;--font:'Palatino Linotype',Palatino,'Book Antiqua',serif;--paper:#F1E6CF;--grid:#E6D8B8;--panel:#FBF3E1;--panel-2:#F0E3C6;--line:#D9C79D;--ink:#3A2A12;--ink-2:#6B5733;--ink-3:#9A8456;--blue:#8A5A1C;--on-blue:#fff;--blue-soft:#F0DDB8;--red:#A3321F;--red-soft:#F4DAD2;--amber:#8F5A0A;--amber-soft:#F0DFB5;--green:#41683A;--green-soft:#E0E8CC;--hl:#C9A24D;--hl-ink:#2A1D06}
+html[data-skin="ocean"]{color-scheme:light;--paper:#EFF7FB;--grid:#D8EAF3;--panel:#FFFFFF;--panel-2:#E6F1F7;--line:#C9DEEA;--ink:#10303F;--ink-2:#44687A;--ink-3:#7F9FB0;--blue:#0A7EA4;--on-blue:#fff;--blue-soft:#D5ECF5;--red:#C8352C;--red-soft:#FBE7E5;--amber:#B86A10;--amber-soft:#FCF0DE;--green:#1E7A4E;--green-soft:#E1F3E9;--hl:#5BC8E8;--hl-ink:#06222E}
+html[data-skin="foret"]{color-scheme:dark;--paper:#0F1A14;--grid:#15251C;--panel:#14211A;--panel-2:#1B2C22;--line:#29412F;--ink:#E3F1E6;--ink-2:#A7C4B0;--ink-3:#6F8F7A;--blue:#86D69B;--on-blue:#08140C;--blue-soft:#1E3626;--red:#FF8A7A;--red-soft:#3A1D1A;--amber:#E9B65A;--amber-soft:#352A12;--green:#86D69B;--green-soft:#1E3626;--hl:#D9A441;--hl-ink:#20160A}
+html[data-skin="serre"]{color-scheme:light;--paper:#F4F9EC;--grid:#E3EFD3;--panel:#FFFFFF;--panel-2:#EDF4E1;--line:#D3E3BE;--ink:#1F3318;--ink-2:#4E6B43;--ink-3:#839C77;--blue:#3E8E2F;--on-blue:#fff;--blue-soft:#DDEFD3;--red:#C8352C;--red-soft:#FBE7E5;--amber:#A86A0C;--amber-soft:#F8EBC9;--green:#2E7A22;--green-soft:#DDEFD3;--hl:#B7E04A;--hl-ink:#1E2A06}
+html[data-skin="marianne"]{color-scheme:light;--paper:#F7F8FC;--grid:#E3E7F3;--panel:#FFFFFF;--panel-2:#EEF1F9;--line:#D5DBEC;--ink:#14213D;--ink-2:#4A5778;--ink-3:#8590AD;--blue:#002395;--on-blue:#fff;--blue-soft:#DDE3F7;--red:#ED2939;--red-soft:#FCE3E5;--amber:#B86A10;--amber-soft:#FCF0DE;--green:#1E7A4E;--green-soft:#E1F3E9;--hl:#ED2939;--hl-ink:#fff}
+
 /* ---------- Écrans plus étroits ---------- */
 @media (max-width:1280px){
   .dash{grid-template-columns:330px minmax(0,1fr)}
+  .village{grid-template-columns:minmax(0,1fr) 340px}
   .dash .col-right{grid-column:1/-1;overflow:visible}
   .dash{overflow:auto}
   .dash .col{overflow:visible}
@@ -300,6 +379,8 @@ svg.chart{width:100%;height:auto;display:block}
   .dash,.analyse{padding:12px}
   .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
   .sugs,.split,.set-grid{grid-template-columns:1fr}
+  .village{grid-template-columns:1fr}
+  .vboard{min-width:0;max-width:none;width:100%}
   .analyse .span2{grid-column:auto}
 }
 </style>
@@ -329,10 +410,12 @@ svg.chart{width:100%;height:auto;display:block}
     <div class="brand">Carnet<b>.</b></div>
     <nav class="tabs" aria-label="Vues">
       <button class="on" data-view="dash">Tableau de bord</button>
+      <button data-view="village">Village</button>
       <button data-view="analyse">Analyse</button>
     </nav>
     <div class="top-right">
       <span class="pill parent" id="parentPill" hidden>Vue parent</span>
+      <span class="pill" id="countPill" hidden></span>
       <span class="pill timer" id="timerPill" hidden></span>
       <span class="pill" id="streakPill" title="Jours d'affilée avec au moins une séance">🔥 0 jour</span>
       <span class="today" id="todayLabel"></span>
@@ -347,7 +430,7 @@ svg.chart{width:100%;height:auto;display:block}
       <!-- Colonne gauche : saisie -->
       <div class="col col-left">
         <div class="panel">
-          <div class="panel-h" style="margin-bottom:10px"><h2 id="entryTitle">Nouvelle séance</h2></div>
+          <div class="panel-h" style="margin-bottom:10px"><h2 id="entryTitle">Nouvelle séance</h2><button class="linkbtn" id="resumeBtn" hidden>Reprendre la dernière</button></div>
           <div class="seg full" id="modeSeg">
             <button class="on" data-mode="done">Séance faite</button>
             <button data-mode="plan">Révision à programmer</button>
@@ -360,6 +443,11 @@ svg.chart{width:100%;height:auto;display:block}
             <button class="btn-round" id="timerToggle" aria-label="Démarrer le minuteur">▶</button>
             <button class="btn-sm" id="timerReset" title="Remettre à zéro">↺</button>
             <button class="btn-sm" id="timerUse" disabled>Reporter</button>
+          </div>
+          <div class="tbx" id="timerExtras" hidden>
+            <button class="btn-sm" id="soundBtn" hidden>🎧 Ambiance</button>
+            <button class="btn-sm" id="focusBtn" hidden>⛶ Plein écran</button>
+            <button class="btn-sm" id="pomoBtn" hidden>☕ Pauses</button>
           </div>
 
           <span class="lbl" style="margin-top:0">Matière</span>
@@ -409,7 +497,7 @@ svg.chart{width:100%;height:auto;display:block}
       <!-- Colonne centrale -->
       <div class="col col-center">
         <div class="kpis">
-          <div class="kpi"><div class="v" id="kWeek">0 min</div><div class="l">Révisé ces 7 jours</div><div class="d" id="kWeekD"></div></div>
+          <div class="kpi"><div class="v" id="kWeek">0 min</div><div class="l">Révisé ces 7 jours</div><div class="d" id="kWeekD"></div><div class="kgoal" id="kGoal" hidden><div class="track"><i id="kBar"></i></div><div class="d" id="kGoalTxt"></div></div></div>
           <div class="kpi"><div class="v" id="kCount">0</div><div class="l">Séances ces 7 jours</div></div>
           <div class="kpi"><div class="v" id="kDue">0</div><div class="l">Révisions à faire</div><div class="d down" id="kDueD"></div></div>
           <div class="kpi"><div class="v" id="kEval">Aucune</div><div class="l" id="kEvalL">Prochaine évaluation</div></div>
@@ -437,24 +525,51 @@ svg.chart{width:100%;height:auto;display:block}
         </div>
       </div>
 
-      <!-- Colonne droite : l'Académie -->
+      <!-- Colonne droite : le village -->
       <div class="col col-right">
         <div class="academy" id="academy">
           <div class="ah">
-            <h2>L'Académie de Kajetan</h2>
-            <span class="rank" id="gRank">Novice</span>
+            <h2>Village du savoir</h2>
+            <span class="rank" id="gRank">Hameau</span>
           </div>
           <div class="big" id="gSavoir">0</div>
           <div class="unit">points de savoir</div>
-          <div class="rate" id="gRate">0 par seconde</div>
+          <div class="rankbar"><i id="gRankBar" style="width:0%"></i></div>
+          <div class="nextrank" id="gNext"></div>
+          <div class="minimap" id="gMini"></div>
           <div class="fuel" id="gFuel">
             <div class="bar"><i id="gFuelBar" style="width:0%"></i></div>
             <div class="ft" id="gFuelTxt"></div>
           </div>
-          <div class="nextrank" id="gNext"></div>
-          <div class="buildings" id="gBuildings"></div>
-          <div class="rules">Chaque minute révisée rapporte du savoir et 20 minutes d'énergie. L'Académie produit tant qu'elle a de l'énergie, même quand l'appli est fermée. Les jours de révision d'affilée augmentent la production.</div>
+          <div class="rate" id="gRate"></div>
+          <div class="mqs" style="margin-top:12px"><b style="font-size:12.5px">Quêtes de la semaine</b><div id="gQuests"></div></div>
+          <button class="acad-btn" id="gOpen">Ouvrir le village</button>
+          <div class="rules">Chaque bâtiment grandit avec les révisions de sa matière. Le village produit un peu de savoir en plus, tant qu'il a de l'énergie, et l'énergie vient des révisions.</div>
         </div>
+      </div>
+    </section>
+
+    <!-- ======= Village ======= -->
+    <section class="view village" id="view-village">
+      <div class="vmain">
+        <div class="vhead">
+          <span class="rk" id="vRank">Hameau</span>
+          <span class="pts" id="vPts"></span>
+          <div class="vprog"><i id="vRankBar" style="width:0%"></i></div>
+          <span class="sub" id="vRankNext"></span>
+        </div>
+        <div class="seg" id="boardSeg" style="margin-bottom:12px"><button class="on" data-b="subj">Bâtiments des matières</button><button data-b="infra">Infrastructures</button></div>
+        <div class="vrow">
+          <div class="vboard" id="vBoard"></div>
+          <div class="vmid">
+            <div class="panel" id="vQuests"></div>
+            <div class="panel" id="vChron" hidden><div class="panel-h"><h2>Chronique du village</h2></div><div class="chron" id="vChronList"></div></div>
+          </div>
+        </div>
+        <p class="sub" style="margin-top:12px">Les bâtiments des matières montent avec les points de leur matière. Les infrastructures montent avec tes habitudes et donnent de petits avantages. Les séances « Autre » comptent dans les statistiques et dans les infrastructures, mais pas dans les bâtiments de matières.</p>
+      </div>
+      <div class="vside">
+        <div class="panel" id="vDetail"></div>
       </div>
     </section>
 
@@ -482,6 +597,9 @@ svg.chart{width:100%;height:auto;display:block}
         </div>
         <div class="hist-wrap" id="histTable"></div>
       </div>
+
+      <div class="panel span2" data-sec="heat" data-feat="heat"><div class="panel-h"><h2>Constance sur l'année</h2><span class="sub">34 dernières semaines</span></div><div id="aHeat"></div></div>
+      <div class="panel" data-sec="radar" data-feat="radar"><div class="panel-h"><h2>Équilibre des matières</h2><span class="sub">30 derniers jours</span></div><div id="aRadar"></div></div>
 
       <div class="panel" data-sec="bilan">
         <div class="panel-h"><h2>Bilan à partager</h2></div>
@@ -566,6 +684,14 @@ svg.chart{width:100%;height:auto;display:block}
         <div class="btnrow"><button class="btn-line" id="saveUrls">Enregistrer les adresses</button></div>
       </div>
       <div class="set-sec">
+        <h3>Apparence</h3>
+        <p>Les thèmes se débloquent au niveau 4 des bâtiments.</p>
+        <div class="skins" id="skinList"></div>
+
+        <h3>Fonctions débloquées</h3>
+        <p>Chaque bâtiment offre une fonction au niveau 3.</p>
+        <div id="featList"></div>
+
         <h3>Blocs affichés dans Analyse</h3>
         <p>Réglage propre à cet ordinateur.</p>
         <div id="secChecks"></div>
@@ -579,6 +705,14 @@ svg.chart{width:100%;height:auto;display:block}
         <div id="cleanGroups"></div>
       </div>
     </div>
+  </div>
+</div>
+
+<div id="focusOverlay" hidden>
+  <div>
+    <div class="fo-m" id="foMat"></div>
+    <div class="fo-t" id="foDigits">00:00</div>
+    <div class="fo-b"><button class="btn-round" id="foToggle" aria-label="Pause ou reprise">▶</button><button class="btn-line" id="foClose">Quitter le mode concentration</button></div>
   </div>
 </div>
 
@@ -760,101 +894,584 @@ function computeSuggestions(){
   return list.slice(0,3);
 }
 
-/* ================= L'Académie (mini-jeu) ================= */
-const BUILDINGS = [
-  {id:"bureau",  ic:"✏️", name:"Bureau d'étude",  cost:50,      prod:0.2},
-  {id:"biblio",  ic:"📚", name:"Bibliothèque",    cost:450,     prod:1.5},
-  {id:"labo",    ic:"🧪", name:"Laboratoire",     cost:3500,    prod:9},
-  {id:"amphi",   ic:"🎓", name:"Amphithéâtre",    cost:25000,   prod:50},
-  {id:"obs",     ic:"🔭", name:"Observatoire",    cost:180000,  prod:280},
-  {id:"univ",    ic:"🏛️", name:"Université",      cost:1300000, prod:1600}
+/* ================= Le Village du savoir (mini-jeu) ================= */
+// Un bâtiment par matière. Il monte de niveau avec les points gagnés en révisant cette matière.
+// Rythme réglé par simulation : environ 2 h de révision par semaine donnent encore des niveaux à gagner
+// après deux années scolaires, et la production passive reste autour d'un quart des points.
+const LEVEL_PTS = [0, 50, 200, 550, 1200, 2600];          // seuils de points, multipliés par le coefficient k du bâtiment
+const PROD = [0.25, 0.35, 0.5, 0.7, 0.9, 1.2];            // points par heure de village, selon le niveau
+const ENERGY_PER_MIN = 4;                                  // minutes de village par minute révisée
+const fuelCap = () => (36 + 4 * (infraLv("bef") - 1)) * 3600;
+const DAY_FULL_MIN = 90;                                   // au-delà, les minutes d'une matière comptent moitié ce jour-là
+const FEATURE_LV = 3, SKIN_LV = 4, MASTER_LV = 5, LEGEND_LV = 6;
+const RANKS = [[0,"Hameau"],[500,"Bourg"],[1800,"Village"],[4000,"Bourgade"],[7500,"Petite ville"],[12000,"Ville"],[17000,"Cité savante"]];
+
+const MODULES = [
+  {id:"maths", subj:"Mathématiques", name:"Observatoire", de:"de l'Observatoire", emoji:"🔭", k:1.5, roof:"dome",
+    feat:{id:"goal", name:"Objectif hebdomadaire", desc:"Fixe un objectif de minutes sur 7 jours, une barre de progression s'affiche sur le tableau de bord."},
+    skin:{id:"obs", name:"Nuit étoilée", sw:["#0E1426","#7FA2FF"]}},
+  {id:"pc", subj:"Physique-Chimie", name:"Laboratoire", de:"du Laboratoire", emoji:"🧪", k:1.2, roof:"flat",
+    feat:{id:"sound", name:"Ambiance sonore", desc:"Bruit brun ou pluie en fond pendant le minuteur, pour couvrir les distractions."},
+    skin:{id:"lab", name:"Laboratoire", sw:["#F3F8F7","#0E8C7F"]}},
+  {id:"nsi", subj:"Numérique & Sc. Info", name:"Tour numérique", de:"de la Tour numérique", emoji:"💻", k:1.0, roof:"tower",
+    feat:{id:"heat", name:"Carte de chaleur", desc:"Une grille des 34 dernières semaines qui montre les jours révisés, dans Analyse."},
+    skin:{id:"term", name:"Terminal", sw:["#0B0F0C","#39E06B"]}},
+  {id:"fr", subj:"Français", name:"Théâtre", de:"du Théâtre", emoji:"🎭", k:1.2, roof:"pediment",
+    feat:{id:"focus", name:"Mode concentration", desc:"Le minuteur en plein écran, sans rien d'autre à l'écran."},
+    skin:{id:"enc", name:"Encre", sw:["#FAF5EA","#7A2E2E"]}},
+  {id:"hg", subj:"Histoire-Géographie", name:"Musée", de:"du Musée", emoji:"🏺", k:1.0, roof:"pediment",
+    feat:{id:"chron", name:"Chronique du village", desc:"Le journal des niveaux gagnés et des quêtes accomplies, dans l'onglet Village."},
+    skin:{id:"parch", name:"Parchemin", sw:["#F1E6CF","#8A5A1C"]}},
+  {id:"en", subj:"Anglais LV1", name:"Port", de:"du Port", emoji:"⚓", k:0.8, roof:"flat",
+    feat:{id:"resume", name:"Reprise rapide", desc:"Un bouton qui préremplit la saisie avec la dernière séance."},
+    skin:{id:"ocean", name:"Océan", sw:["#EFF7FB","#0A7EA4"]}},
+  {id:"de", subj:"Allemand LV2", name:"Gare", de:"de la Gare", emoji:"🚉", k:0.7, roof:"tower",
+    feat:{id:"radar", name:"Radar d'équilibre", desc:"Un graphique en toile d'araignée qui montre les matières négligées, dans Analyse."},
+    skin:{id:"foret", name:"Forêt noire", sw:["#0F1A14","#86D69B"]}},
+  {id:"es", subj:"Enseign. scientifique", name:"Serre", de:"de la Serre", emoji:"🌿", k:0.5, roof:"greenhouse",
+    feat:{id:"pomo", name:"Rappel de pause", desc:"Une alerte toutes les 25 minutes de minuteur pour penser à faire une pause."},
+    skin:{id:"serre", name:"Serre", sw:["#F4F9EC","#3E8E2F"]}},
+  {id:"emc", subj:"EMC", name:"Mairie", de:"de la Mairie", emoji:"🏛️", k:0.4, roof:"pediment",
+    feat:{id:"count", name:"Compte à rebours", desc:"Affiche en haut le nombre de jours avant une date de ton choix, par exemple les épreuves anticipées."},
+    skin:{id:"marianne", name:"Marianne", sw:["#F7F8FC","#002395"]}}
 ];
-const RANKS = [[0,"Novice"],[1e3,"Apprenti"],[1e4,"Studieux"],[1e5,"Érudit"],[1e6,"Savant"],[1e7,"Maître"],[1e8,"Lauréat du bac"]];
-const FUEL_CAP = 48*3600;
-let G = {savoir:0, total:0, fuel:0, last:Date.now(), b:{}};
-let gameReady = false, gameSaveTimer = null, buildingsSig = "";
+MODULES.forEach(m => { m.color = colorOf(m.subj); });
+const modBySubj = s => MODULES.find(m => m.subj === s) || null;
 
-const owned = id => G.b[id] || 0;
-const streakMult = () => 1 + Math.min(streak(), 10) * 0.1;
-const rawRate = () => BUILDINGS.reduce((a,b) => a + owned(b.id)*b.prod, 0);
-const rate = () => rawRate() * streakMult();
-const costOf = b => Math.ceil(b.cost * Math.pow(1.15, owned(b.id)));
-function rewardFor(min, diff){ const m = Math.min(Math.max(min,0), 240); return Math.round(m * (12 + rawRate()*30) * (1 + 0.15*((diff||3)-1)) * streakMult()); }
-const fuelFor = min => Math.min(Math.max(min,0), 240) * 20 * 60;
-function rankOf(total){ let r = RANKS[0]; for(const x of RANKS) if(total >= x[0]) r = x; return r; }
+/* ----- Infrastructures : des bâtiments qui récompensent des habitudes, pas une matière ----- */
+function bestStreak(){
+  const days = [...new Set(done().map(s => s.date))].sort();
+  let best = 0, run = 0, prev = null;
+  days.forEach(d => { run = prev && addDays(prev, 1) === d ? run + 1 : 1; best = Math.max(best, run); prev = d; });
+  return best;
+}
+function mixedDays(){ const by = {}; done().forEach(s => { (by[s.date] ||= new Set()).add(s.matiere); }); return Object.values(by).filter(x => x.size >= 2).length; }
+const reviewsDone = () => S.sessions.filter(s => s.fromReview).length + S.sessions.filter(s => s.revuDate).length;
+const plural = (n, w) => `${n} ${w}${n > 1 ? "s" : ""}`;
+const INFRA = [
+  {id:"lib", name:"Bibliothèque", de:"de la Bibliothèque", emoji:"📚", color:"#B04E3F", roof:"pediment", th:[0,10,40,100,200,400],
+    metric:() => done().length, label:"Séances enregistrées", u:n => plural(n, "séance"),
+    how:"Elle monte avec le nombre total de séances enregistrées : chaque saisie compte, même courte.",
+    perk:lv => lv <= 1 ? "Aucun avantage pour l'instant" : `+${plural(lv-1, "point")} par séance`},
+  {id:"bef", name:"Beffroi", de:"du Beffroi", emoji:"🔔", color:"#4C6B8A", roof:"tower", th:[0,300,1200,3000,6000,12000],
+    metric:() => sumMin(done()), label:"Temps révisé", u:n => fmtMin(n),
+    how:"Il monte avec le temps total révisé, toutes matières confondues.",
+    perk:lv => `réserve d'énergie de ${36 + 4*(lv-1)} h${lv <= 1 ? " (de base)" : ""}`},
+  {id:"jar", name:"Jardin", de:"du Jardin", emoji:"🌳", color:"#4E9A3B", roof:"greenhouse", th:[0,3,7,14,30,60],
+    metric:bestStreak, label:"Série record", u:n => plural(n, "jour"),
+    how:"Il monte avec ta plus longue série de jours consécutifs avec au moins une séance. Un record ne se perd jamais.",
+    perk:lv => `la série compte jusqu'à ${10 + 2*(lv-1)} jours (+2 % par jour)`},
+  {id:"mar", name:"Marché", de:"du Marché", emoji:"🧺", color:"#D1862E", roof:"flat", th:[0,3,10,25,50,100],
+    metric:() => G.qdone || 0, label:"Quêtes accomplies", u:n => plural(n, "quête"),
+    how:"Il monte avec le nombre total de quêtes hebdomadaires accomplies.",
+    perk:lv => lv <= 1 ? "Quêtes à leur valeur de base" : `quêtes ${(lv-1) * 10} % plus généreuses`},
+  {id:"fon", name:"Fontaine", de:"de la Fontaine", emoji:"⛲", color:"#4F9BCB", roof:"flat", th:[0,3,10,25,50,100],
+    metric:reviewsDone, label:"Révisions programmées faites", u:n => plural(n, "révision"),
+    how:"Elle monte chaque fois que tu fais une révision programmée : c'est la répétition espacée qui l'alimente.",
+    perk:lv => `bonus de révision programmée de ×${(1.2 + 0.02*(lv-1)).toFixed(2).replace(".", ",")}`},
+  {id:"pon", name:"Pont", de:"du Pont", emoji:"🌉", color:"#8A6D4B", roof:"flat", th:[0,3,8,20,40,80],
+    metric:mixedDays, label:"Jours avec deux matières", u:n => plural(n, "jour"),
+    how:"Il monte avec les jours où tu as révisé au moins deux matières différentes. Alterner aide à mieux retenir.",
+    perk:lv => lv <= 1 ? "Aucun avantage pour l'instant" : `+${3*(lv-1)} % de points quand tu changes de matière dans la journée`}
+];
+function infraProgress(f){
+  const v = f.metric(); let lv = 1;
+  for(let i = 1; i < f.th.length; i++) if(v >= f.th[i]) lv = i + 1;
+  const cur = f.th[lv-1], next = lv < f.th.length ? f.th[lv] : null;
+  return {lv, pts:v, cur, next, remaining: next ? next - v : 0, pct: next ? Math.max(0, Math.min(100, (v - cur) / (next - cur) * 100)) : 100};
+}
+const infraLv = id => infraProgress(INFRA.find(f => f.id === id)).lv;
+const findEntity = id => MODULES.find(m => m.id === id) || INFRA.find(f => f.id === id);
 
+let G = {v:3, init:false, passive:{}, bonus:{}, fuel:2*3600, last:Date.now(), focus:null, quests:{}, levels:{}, rank:-1, log:[]};
+let gameReady = false, gameSaveTimer = null, selectedMod = "maths", boardSig = "", boardMode = "subj";
+
+/* ----- Points et niveaux ----- */
+const basePts = s => Math.round(Math.min(s.duree || 0, DAY_FULL_MIN) * (1 + 0.1 * ((s.difficulte || 3) - 1)));
+const sessPts = s => (typeof s.pts === "number" ? s.pts : basePts(s));
+function modActive(m){ return done().filter(s => s.matiere === m.subj).reduce((a,s) => a + sessPts(s), 0); }
+function modPts(m){ return modActive(m) + (G.passive[m.id] || 0) + (G.bonus[m.id] || 0); }
+function levelFor(pts, k){ let lv = 1; for(let i = 1; i < LEVEL_PTS.length; i++) if(pts >= LEVEL_PTS[i] * k) lv = i + 1; return lv; }
+function levelOf(m){ return levelFor(modPts(m), m.k); }
+function levelProgress(m){
+  const pts = modPts(m), lv = levelFor(pts, m.k);
+  const cur = LEVEL_PTS[lv-1] * m.k, next = lv < LEVEL_PTS.length ? LEVEL_PTS[lv] * m.k : null;
+  return {lv, pts, cur, next, remaining: next ? next - pts : 0, pct: next ? Math.max(0, Math.min(100, (pts - cur) / (next - cur) * 100)) : 100};
+}
+const totalPts = () => MODULES.reduce((a,m) => a + modPts(m), 0);
+function rankInfo(T){
+  let i = 0; RANKS.forEach((r,j) => { if(T >= r[0]) i = j; });
+  const next = RANKS[i+1] || null;
+  return {i, name: RANKS[i][1], next, pct: next ? (T - RANKS[i][0]) / (next[0] - RANKS[i][0]) * 100 : 100};
+}
+const featureOn = id => MODULES.some(m => m.feat.id === id && levelOf(m) >= FEATURE_LV);
+const skinUnlocked = id => id === "default" || MODULES.some(m => m.skin.id === id && levelOf(m) >= SKIN_LV);
+
+function sessionPoints(matiere, date, minutes, diff, fromReview){
+  const prior = done().filter(s => s.matiere === matiere && s.date === date).reduce((a,s) => a + (s.duree||0), 0);
+  const full = Math.max(0, Math.min(minutes, DAY_FULL_MIN - prior));
+  const eff = full + (minutes - full) * 0.5;
+  const dm = 1 + 0.1 * ((diff || 3) - 1);
+  const sm = 1 + Math.min(streak(), 10 + 2 * (infraLv("jar") - 1)) * 0.02;
+  const rm = fromReview ? 1.2 + 0.02 * (infraLv("fon") - 1) : 1;
+  const mixed = done().some(s => s.date === date && s.matiere !== matiere);
+  const pm = mixed ? 1 + 0.03 * (infraLv("pon") - 1) : 1;
+  const flat = infraLv("lib") - 1;
+  return {pts: Math.max(1, Math.round(eff * dm * sm * rm * pm) + flat), eff, capped: eff < minutes};
+}
+
+/* ----- Énergie et production passive ----- */
 function tick(){
-  const now = Date.now();
-  const dt = (now - G.last) / 1000; G.last = now;
-  if(dt <= 0 || G.fuel <= 0) return 0;
-  const run = Math.min(dt, G.fuel);
-  const gain = rate() * run;
-  G.savoir += gain; G.total += gain; G.fuel -= run;
+  const now = Date.now(), dt = (now - G.last) / 1000; G.last = now;
+  if(S.isParent || dt <= 0 || G.fuel <= 0) return 0;
+  const run = Math.min(dt, G.fuel); G.fuel -= run;
+  let gain = 0;
+  MODULES.forEach(m => {
+    const r = PROD[levelOf(m)-1] * (G.focus === m.id ? 2 : 1) * run / 3600;
+    G.passive[m.id] = (G.passive[m.id] || 0) + r; gain += r;
+  });
   if(gain > 0) scheduleGameSave();
   return gain;
 }
+function ratePerHour(){ return MODULES.reduce((a,m) => a + PROD[levelOf(m)-1] * (G.focus === m.id ? 2 : 1), 0); }
 function scheduleGameSave(now){
-  if(S.isParent) return; // la vue parent ne modifie pas la partie
+  if(S.isParent) return;
   clearTimeout(gameSaveTimer);
-  gameSaveTimer = setTimeout(async () => { try{ await setDoc(gameRef, G); }catch(e){} }, now ? 0 : 10000);
+  gameSaveTimer = setTimeout(async () => { try{ await setDoc(gameRef, G); }catch(e){} }, now ? 0 : 20000);
 }
 async function loadGame(){
-  try{ const snap = await getDoc(gameRef); if(snap.exists()) G = {...G, ...snap.data(), b:{...(snap.data().b||{})}}; }catch(e){}
-  const gained = tick();
+  try{
+    const snap = await getDoc(gameRef);
+    if(snap.exists() && snap.data().v === 3){ const d = snap.data(); G = {...G, ...d, passive:{...(d.passive||{})}, bonus:{...(d.bonus||{})}, quests:{...(d.quests||{})}, levels:{...(d.levels||{})}, log:[...(d.log||[])]}; }
+  }catch(e){}
+  const before = totalPts();
+  tick();
   gameReady = true;
-  if(gained >= 1) setTimeout(() => toast(`Pendant ton absence, l'Académie a produit ${fmtNum(gained)} points de savoir`), 600);
+  const gained = totalPts() - before;
+  if(gained >= 1) setTimeout(() => toast(`Pendant ton absence, le village a produit ${fmtNum(gained)} points`), 700);
 }
-function grantReward(min, diff){
+function afterSession(calc){
   tick();
-  const r = rewardFor(min, diff);
-  G.savoir += r; G.total += r; G.fuel = Math.min(FUEL_CAP, G.fuel + fuelFor(min));
+  G.fuel = Math.min(fuelCap(), G.fuel + calc.eff * ENERGY_PER_MIN * 60);
   scheduleGameSave(true);
-  const big = $("#gSavoir"); big.classList.remove("pop"); void big.offsetWidth; big.classList.add("pop");
-  return r;
 }
-function buy(id){
-  if(S.isParent) return;
-  tick();
-  const b = BUILDINGS.find(x => x.id === id); const c = costOf(b);
-  if(G.savoir < c) return;
-  G.savoir -= c; G.b[id] = owned(id) + 1;
-  scheduleGameSave(true);
-  renderBuildings(true);
-  toast(`${b.name} construit`);
-}
-function renderBuildings(force){
-  let shownLocked = false;
-  const rows = [];
-  BUILDINGS.forEach((b, i) => {
-    const unlocked = i === 0 || owned(b.id) > 0 || G.total >= b.cost * 0.4;
-    if(!unlocked){
-      if(shownLocked) return; shownLocked = true;
-      rows.push(`<div class="bld locked"><span class="ic">🔒</span><div class="bt"><b>Bâtiment suivant</b><small>Visible à ${fmtNum(b.cost*0.4)} points cumulés</small></div></div>`);
-      return;
+function logEvent(x){ G.log.unshift({t:Date.now(), x}); if(G.log.length > 80) G.log.length = 80; }
+
+/* ----- Montées de niveau et rangs ----- */
+function checkLevelUps(){
+  if(S.isParent) return [];
+  const msgs = [];
+  if(!G.init){
+    MODULES.forEach(m => { G.levels[m.id] = levelOf(m); });
+    INFRA.forEach(f => { G.levels[f.id] = infraProgress(f).lv; });
+    G.rank = rankInfo(totalPts()).i; G.init = true; G.last = Date.now();
+    scheduleGameSave(true); return msgs;
+  }
+  MODULES.forEach(m => {
+    const lv = levelOf(m), prev = G.levels[m.id] || 1;
+    if(lv > prev){
+      G.levels[m.id] = lv;
+      let r = "";
+      if(lv >= FEATURE_LV && prev < FEATURE_LV) r = `fonction « ${m.feat.name} » débloquée`;
+      else if(lv >= SKIN_LV && prev < SKIN_LV) r = `thème « ${m.skin.name} » débloqué`;
+      else if(lv >= MASTER_LV && prev < MASTER_LV) r = `titre Maître ${m.de}`;
+      else if(lv >= LEGEND_LV && prev < LEGEND_LV) r = `titre Légende ${m.de}`;
+      logEvent(`${m.name} passe au niveau ${lv}${r ? ", " + r : ""}`);
+      msgs.push(`${m.emoji} ${m.name} niveau ${lv}${r ? " : " + r : ""}`);
+      scheduleGameSave(true);
     }
-    rows.push(`<div class="bld"><span class="ic">${b.ic}</span><div class="bt"><b>${b.name}<span class="own">×${owned(b.id)}</span></b><small>+${fmtRate(b.prod*streakMult())} par seconde chacun</small></div><button class="buy" data-buy="${b.id}">${fmtNum(costOf(b))}</button></div>`);
   });
-  const sig = rows.join("");
-  if(force || sig !== buildingsSig){ $("#gBuildings").innerHTML = sig; buildingsSig = sig; }
-  $$("#gBuildings .buy").forEach(btn => {
-    const b = BUILDINGS.find(x => x.id === btn.dataset.buy);
-    btn.disabled = S.isParent || G.savoir < costOf(b);
+  INFRA.forEach(f => {
+    const lv = infraProgress(f).lv, prev = G.levels[f.id];
+    if(prev === undefined){ G.levels[f.id] = lv; scheduleGameSave(true); return; }
+    if(lv > prev){
+      G.levels[f.id] = lv;
+      logEvent(`${f.name} passe au niveau ${lv} : ${f.perk(lv)}`);
+      msgs.push(`${f.emoji} ${f.name} niveau ${lv} : ${f.perk(lv)}`);
+      scheduleGameSave(true);
+    }
+  });
+  const ri = rankInfo(totalPts()).i;
+  if(ri > G.rank){ G.rank = ri; logEvent(`Le village devient : ${RANKS[ri][1]}`); msgs.push(`🏘️ Nouveau rang du village : ${RANKS[ri][1]}`); scheduleGameSave(true); }
+  return msgs;
+}
+
+/* ----- Quêtes de la semaine ----- */
+function weeklyQuestDefs(){
+  const wk = mondayOf(todayISO());
+  const n = Math.abs([...wk].reduce((a,c) => (a * 31 + c.charCodeAt(0)) | 0, 7));
+  const goal = +S.settings.weeklyGoal || 0;
+  const mins = goal ? Math.min(300, Math.max(60, goal)) : [120,150,180][n % 3];
+  const nb = 3 + ((n >> 1) % 2), nd = 3 + ((n >> 2) % 2);
+  const B = [
+    {id:"subj", text:`Réviser ${nb} matières différentes`, target:nb, r:12},
+    {id:"days", text:`Réviser ${nd} jours différents`, target:nd, r:12},
+    {id:"inter", text:"Réviser deux matières différentes le même jour", target:1, r:10}
+  ];
+  const C = [
+    {id:"reviews", text:"Faire 2 révisions programmées", target:2, r:15},
+    {id:"deep", text:"Faire 2 séances d'au moins 40 minutes", target:2, r:12}
+  ];
+  if(upcomingEvals().length) C.push({id:"evalprep", text:"Réviser une matière qui a une évaluation à venir", target:1, r:15});
+  return [{id:"minutes", text:`Réviser ${mins} minutes en tout`, target:mins, r:15, unit:" min"}, B[n % B.length], C[(n >> 3) % C.length]];
+}
+function weeklyQuests(){
+  const wk = mondayOf(todayISO()), end = addDays(wk, 6);
+  const ws = inRange(done(), wk, end);
+  const evMats = new Set(upcomingEvals().map(e => e.matiere));
+  const byDay = {}; ws.forEach(s => { (byDay[s.date] ||= new Set()).add(s.matiere); });
+  const reviews = ws.filter(s => s.fromReview).length + S.sessions.filter(s => s.revuDate && s.revuDate >= wk && s.revuDate <= end).length;
+  const cur = {
+    minutes: sumMin(ws),
+    subj: new Set(ws.map(s => s.matiere)).size,
+    days: new Set(ws.map(s => s.date)).size,
+    inter: Object.values(byDay).some(x => x.size >= 2) ? 1 : 0,
+    reviews,
+    deep: ws.filter(s => (s.duree||0) >= 40).length,
+    evalprep: ws.filter(s => s.evalId || evMats.has(s.matiere)).length ? 1 : 0
+  };
+  const claimed = G.quests[wk] || [];
+  const boost = 1 + 0.1 * (infraLv("mar") - 1);
+  return weeklyQuestDefs().map(q => ({...q, r: Math.round(q.r * boost), cur: cur[q.id] || 0, done: claimed.includes(q.id) || (cur[q.id] || 0) >= q.target, claimed: claimed.includes(q.id)}));
+}
+function questTarget(){
+  if(G.focus){ const f = MODULES.find(m => m.id === G.focus); if(f) return f; }
+  return MODULES.slice().sort((a,b) => levelOf(a) - levelOf(b) || modPts(a)/a.k - modPts(b)/b.k)[0];
+}
+function checkQuests(){
+  if(S.isParent) return [];
+  const msgs = [], wk = mondayOf(todayISO());
+  const claimed = (G.quests[wk] ||= []);
+  weeklyQuests().forEach(q => {
+    if(q.cur >= q.target && !claimed.includes(q.id)){
+      claimed.push(q.id);
+      const m = questTarget();
+      G.bonus[m.id] = (G.bonus[m.id] || 0) + q.r; G.qdone = (G.qdone || 0) + 1;
+      logEvent(`Quête accomplie : ${q.text} (+${q.r} points pour ${m.name})`);
+      msgs.push(`✓ Quête accomplie, +${q.r} points pour ${m.name}`);
+      scheduleGameSave(true);
+    }
+  });
+  Object.keys(G.quests).sort().slice(0, -6).forEach(k => delete G.quests[k]);
+  return msgs;
+}
+
+/* ----- Illustrations : images si elles existent, sinon dessin intégré ----- */
+function hexMix(a, b, t){
+  const p = h => [1,3,5].map(i => parseInt(h.slice(i,i+2), 16)), A = p(a), B = p(b);
+  return "#" + A.map((x,i) => Math.round(x + (B[i]-x)*t).toString(16).padStart(2,"0")).join("");
+}
+function spriteSVG(m, stage, gold){
+  const c = m.color, soft = hexMix(c,"#ffffff",.84), mid = hexMix(c,"#ffffff",.58), dark = hexMix(c,"#000000",.28);
+  const sky = hexMix(c,"#ffffff",.93), grass = hexMix("#93C27F", c, .1);
+  let s = `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${esc(m.name)}, niveau ${stage}"><rect width="200" height="200" fill="${sky}"/>`;
+  s += `<circle cx="168" cy="30" r="13" fill="#FFE08A"/><rect y="150" width="200" height="50" fill="${grass}"/><rect y="150" width="200" height="4" fill="${hexMix(grass,"#000000",.1)}"/>`;
+  if(stage <= 1){
+    s += `<rect x="60" y="134" width="80" height="18" fill="${mid}" stroke="${dark}" stroke-width="2"/>`;
+    for(let i = 0; i < 5; i++) s += `<line x1="${68+i*16}" y1="134" x2="${68+i*16}" y2="104" stroke="#9A7B4F" stroke-width="3"/>`;
+    s += `<line x1="64" y1="112" x2="136" y2="112" stroke="#9A7B4F" stroke-width="3"/><line x1="64" y1="124" x2="136" y2="124" stroke="#9A7B4F" stroke-width="3"/>`;
+    s += `<text x="100" y="98" font-size="26" text-anchor="middle">🏗️</text><text x="100" y="178" font-size="16" text-anchor="middle">🚧</text>`;
+  } else {
+    const w = 58 + stage * 14, h = 24 + stage * 15, x = 100 - w/2, y = 150 - h;
+    if(stage >= 3){
+      const ah = h * 0.55;
+      s += `<rect x="${x-26}" y="${150-ah}" width="30" height="${ah}" fill="${mid}" stroke="${dark}" stroke-width="2"/><rect x="${x+w-4}" y="${150-ah}" width="30" height="${ah}" fill="${mid}" stroke="${dark}" stroke-width="2"/>`;
+    }
+    s += `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${soft}" stroke="${dark}" stroke-width="2.5"/>`;
+    const room = Math.max(10, y - 8);
+    if(m.roof === "dome"){ const ry = Math.min(w*0.3, room); s += `<path d="M${x} ${y} A${w/2} ${ry} 0 0 1 ${x+w} ${y}Z" fill="${mid}" stroke="${dark}" stroke-width="2.5"/><line x1="100" y1="${y-ry}" x2="100" y2="${y}" stroke="${dark}" stroke-width="2"/>`; }
+    else if(m.roof === "tower"){ const th = Math.min(34, room); s += `<rect x="${100-13}" y="${y-th}" width="26" height="${th}" fill="${mid}" stroke="${dark}" stroke-width="2.5"/><line x1="100" y1="${y-th}" x2="100" y2="${y-th-Math.min(12,y-th-2)}" stroke="${dark}" stroke-width="2.5"/>`; }
+    else if(m.roof === "pediment"){ const ph = Math.min(26, room); s += `<path d="M${x-5} ${y} L100 ${y-ph} L${x+w+5} ${y}Z" fill="${mid}" stroke="${dark}" stroke-width="2.5"/>`; }
+    else if(m.roof === "greenhouse"){ const ry = Math.min(w*0.25, room); s += `<path d="M${x} ${y} Q100 ${y-ry*2} ${x+w} ${y}Z" fill="${hexMix(c,"#ffffff",.7)}" fill-opacity=".8" stroke="${dark}" stroke-width="2.5"/>`; }
+    else { s += `<rect x="${x-3}" y="${y-6}" width="${w+6}" height="6" fill="${mid}" stroke="${dark}" stroke-width="2"/><rect x="${x+10}" y="${y-Math.min(20,room)}" width="9" height="${Math.min(14,room-6)}" fill="${dark}"/>`; }
+    const rows = Math.max(1, Math.min(stage - 1, Math.floor((h - 34) / 15))), cols = Math.min(5, 2 + Math.floor(stage / 2));
+    for(let r = 0; r < rows; r++) for(let k = 0; k < cols; k++){
+      const wx = x + w * (k + 1) / (cols + 1) - 5;
+      s += `<rect x="${wx.toFixed(1)}" y="${y + 9 + r*15}" width="10" height="10" rx="2" fill="#FFF3C4" stroke="${dark}" stroke-width="1.5"/>`;
+    }
+    s += `<rect x="94" y="131" width="12" height="19" rx="6" fill="${dark}"/>`;
+    s += `<circle cx="34" cy="36" r="18" fill="#fff" stroke="${c}" stroke-width="3"/><text x="34" y="43" font-size="20" text-anchor="middle">${m.emoji}</text>`;
+    if(stage >= 4){
+      s += `<circle cx="20" cy="140" r="11" fill="#6FA95C"/><rect x="18" y="146" width="4" height="8" fill="#7A5A36"/><circle cx="184" cy="141" r="10" fill="#6FA95C"/><rect x="182" y="146" width="4" height="8" fill="#7A5A36"/>`;
+      s += `<line x1="${x+w+14}" y1="${150-h*0.55}" x2="${x+w+14}" y2="${150-h*0.55-24}" stroke="${dark}" stroke-width="2"/><path d="M${x+w+14} ${150-h*0.55-24} l16 6 l-16 6Z" fill="${c}"/>`;
+    }
+    if(stage >= 5) s += `<text x="100" y="14" font-size="14" text-anchor="middle">⭐</text><text x="152" y="60" font-size="12">✨</text><text x="40" y="84" font-size="12">✨</text>`;
+  }
+  if(gold) s += `<rect x="3" y="3" width="194" height="194" rx="10" fill="none" stroke="#E0B52A" stroke-width="6"/><text x="100" y="16" font-size="15" text-anchor="middle">👑</text>`;
+  return s + "</svg>";
+}
+const imgCache = {};
+function probe(url){ return new Promise(r => { const i = new Image(); i.onload = () => r(true); i.onerror = () => r(false); i.src = url; }); }
+function findImage(id, stage){
+  const key = id + "-" + stage;
+  if(!imgCache[key]) imgCache[key] = (async () => {
+    for(let s = stage; s >= 1; s--) for(const ext of ["webp","png"]){
+      const url = `images/village/${id}-${s}.${ext}`;
+      if(await probe(url)) return url;
+    }
+    return null;
+  })();
+  return imgCache[key];
+}
+function hydrateArt(root){
+  root.querySelectorAll("[data-art]").forEach(el => {
+    findImage(el.dataset.art, +el.dataset.stage).then(url => { if(url && el.isConnected) el.innerHTML = `<img src="${url}" alt="">`; });
   });
 }
-function renderGameLive(){
-  $("#gSavoir").textContent = fmtNum(G.savoir);
-  const running = G.fuel > 0 && rawRate() > 0;
-  $("#gRate").textContent = rawRate() === 0
-    ? "Construis un premier bâtiment pour produire du savoir"
-    : `${fmtRate(running ? rate() : 0)} par seconde${streakMult() > 1 ? `, bonus de série ×${streakMult().toFixed(1).replace(".",",")}` : ""}`;
-  $("#gFuelBar").style.width = `${Math.min(100, G.fuel / FUEL_CAP * 100)}%`;
-  $("#gFuel").classList.toggle("off", G.fuel <= 0);
-  $("#gFuelTxt").textContent = G.fuel > 0 ? `Énergie : ${fmtDur(G.fuel)} de production` : "Plus d'énergie : enregistre une révision pour relancer l'Académie";
-  const r = rankOf(G.total); $("#gRank").textContent = r[1];
-  const next = RANKS.find(x => x[0] > G.total);
-  $("#gNext").textContent = next ? `Prochain titre, ${next[1]}, à ${fmtNum(next[0])} points cumulés` : "Titre maximal atteint";
+
+/* ----- Panneau du tableau de bord ----- */
+let miniSig = "";
+function nextReward(){
+  let best = null;
+  MODULES.forEach(m => {
+    const lv = levelOf(m);
+    const target = [FEATURE_LV, SKIN_LV, MASTER_LV, LEGEND_LV].find(l => l > lv);
+    if(!target) return;
+    const need = LEVEL_PTS[target-1] * m.k - modPts(m);
+    if(!best || need < best.need) best = {m, target, need};
+  });
+  if(!best) return "";
+  const {m, target, need} = best;
+  const what = target === FEATURE_LV ? m.feat.name : target === SKIN_LV ? `thème ${m.skin.name}` : target === MASTER_LV ? `titre Maître ${m.de}` : `titre Légende ${m.de}`;
+  return `Prochaine récompense : ${what}, niveau ${target} ${m.de}, encore ${Math.ceil(need)} points`;
 }
-$("#gBuildings").addEventListener("click", e => { const b = e.target.closest("[data-buy]"); if(b) buy(b.dataset.buy); });
+function renderGameLive(force){
+  if(!gameReady) return;
+  const T = totalPts(), r = rankInfo(T);
+  $("#gSavoir").textContent = fmtNum(T);
+  $("#gRank").textContent = r.name;
+  $("#gRankBar").style.width = r.pct + "%";
+  $("#gNext").textContent = nextReward();
+  const running = G.fuel > 0;
+  $("#gRate").textContent = running ? `Le village produit environ ${ratePerHour().toFixed(1).replace(".", ",")} point par heure de village` : "";
+  $("#gFuelBar").style.width = Math.min(100, G.fuel / fuelCap() * 100) + "%";
+  $("#gFuel").classList.toggle("off", !running);
+  $("#gFuelTxt").textContent = running ? `Énergie : ${fmtDur(G.fuel)} de production` : "Plus d'énergie : enregistre une révision pour relancer le village";
+  const sig = MODULES.map(m => levelOf(m)).join(",") + "|" + (G.focus || "");
+  if(force || sig !== miniSig){
+    miniSig = sig;
+    $("#gMini").innerHTML = MODULES.map(m => `<button class="mm" data-mod="${m.id}" title="${esc(m.name)}, niveau ${levelOf(m)}"><span class="e">${m.emoji}</span><b>Niv. ${levelOf(m)}</b></button>`).join("");
+  }
+  $("#gQuests").innerHTML = weeklyQuests().map(q => `<div class="mq ${q.done ? "ok" : ""}"><span>${q.done ? "✓" : "○"} ${esc(q.text)}</span><b>${Math.min(q.cur, q.target)}/${q.target}</b></div>`).join("");
+  if($("#view-village").classList.contains("on")) updateBoardLive();
+}
+$("#gMini").addEventListener("click", e => { const b = e.target.closest("[data-mod]"); if(b){ selectedMod = b.dataset.mod; boardMode = "subj"; switchView("village"); } });
+$("#gOpen").addEventListener("click", () => switchView("village"));
+
+/* ----- Vue Village ----- */
+const sigNow = () => boardMode + "|" + MODULES.map(m => levelOf(m)).join(",") + "|" + INFRA.map(f => infraProgress(f).lv).join(",") + "|" + (G.focus || "") + "|" + selectedMod;
+function boardItems(){
+  return boardMode === "infra"
+    ? INFRA.map(f => { const p = infraProgress(f); return {id:f.id, name:f.name, emoji:f.emoji, color:f.color, roof:f.roof, p, sub:f.u(p.pts)}; })
+    : MODULES.map(m => { const p = levelProgress(m); return {id:m.id, name:m.name, emoji:m.emoji, color:m.color, roof:m.roof, p, sub:shortOf(m.subj)}; });
+}
+function renderBoard(){
+  boardSig = sigNow();
+  $$("#boardSeg button").forEach(b => b.classList.toggle("on", b.dataset.b === boardMode));
+  $("#vBoard").innerHTML = boardItems().map(it => {
+    const stage = Math.min(it.p.lv, 5);
+    return `<button class="tile ${it.p.lv >= 6 ? "gold" : ""} ${it.id === selectedMod ? "sel" : ""}" data-mod="${it.id}" style="--c:${it.color}">
+      <span class="art" data-art="${it.id}" data-stage="${stage}">${spriteSVG(it, stage, it.p.lv >= 6)}</span>
+      <span class="lvl">Niveau ${it.p.lv}</span>${G.focus === it.id ? '<span class="fl" title="Chantier prioritaire">🚧</span>' : ""}
+      <span class="cap"><b>${esc(it.name)}</b><small>${esc(it.sub)}</small><span class="bar"><i style="width:${it.p.pct}%"></i></span></span></button>`;
+  }).join("");
+  hydrateArt($("#vBoard"));
+}
+function updateBoardLive(){
+  if(sigNow() !== boardSig){ renderVillage(); return; }
+  const T = totalPts(), r = rankInfo(T);
+  $("#vPts").textContent = `${fmtNum(T)} points de savoir`;
+  $("#vRankBar").style.width = r.pct + "%";
+  const tiles = $$("#vBoard .tile");
+  boardItems().forEach((it,i) => { if(tiles[i]){ tiles[i].querySelector(".bar i").style.width = it.p.pct + "%"; tiles[i].querySelector(".cap small").textContent = it.sub; } });
+}
+$("#boardSeg").addEventListener("click", e => {
+  const b = e.target.closest("[data-b]"); if(!b || b.dataset.b === boardMode) return;
+  boardMode = b.dataset.b; selectedMod = (boardMode === "infra" ? INFRA : MODULES)[0].id;
+  renderVillage();
+});
+function fmtRate1(x){ return x.toFixed(2).replace(".", ","); }
+function renderInfraDetail(f){
+  const p = infraProgress(f), lv = p.lv;
+  const rows = [2,3,4,5,6].map(l => `<div class="rew ${lv >= l ? "" : "lock"}"><span class="ico">${lv >= l ? "✓" : "🔒"}</span><div style="flex:1;min-width:0"><span class="lv">Niveau ${l}</span><b>${esc(f.perk(l))}</b></div></div>`).join("");
+  $("#vDetail").innerHTML = `
+    <div class="dh"><span class="em">${f.emoji}</span><div><h2>${esc(f.name)}</h2><div class="sub">Infrastructure, niveau ${lv}${lv >= 6 ? " (maximum)" : ""}</div></div></div>
+    <div class="vprog" style="margin:12px 0 5px"><i style="width:${p.pct}%;background:${f.color}"></i></div>
+    <div class="sub">${esc(f.label)} : ${esc(f.u(p.pts))}${p.next ? `, encore ${esc(f.u(p.remaining))} pour le niveau ${lv+1}` : ", niveau maximal atteint"}</div>
+    <div class="sub" style="margin-top:6px">${esc(f.how)}</div>
+    <h3 class="subh">Avantages</h3>${rows}
+    <div class="sub" style="margin-top:10px">Effet actuel : ${esc(f.perk(lv))}</div>`;
+}
+function renderDetail(){
+  const inf = INFRA.find(x => x.id === selectedMod);
+  if(inf){ renderInfraDetail(inf); return; }
+  const m = MODULES.find(x => x.id === selectedMod), p = levelProgress(m);
+  const lv = p.lv;
+  const rows = [
+    {l:FEATURE_LV, ico:"🧰", t:`Fonction : ${m.feat.name}`, d:m.feat.desc},
+    {l:SKIN_LV, ico:"🎨", t:`Thème « ${m.skin.name} »`, d:"Un nouveau look pour toute l'appli, à choisir dans les paramètres ou ici.", act: lv >= SKIN_LV ? `<button class="mini" data-skin="${m.skin.id}">Appliquer</button>` : ""},
+    {l:MASTER_LV, ico:"🏅", t:`Titre : Maître ${m.de}`, d:"Le bâtiment devient un monument."},
+    {l:LEGEND_LV, ico:"👑", t:`Titre : Légende ${m.de}`, d:"Un cadre doré entoure le bâtiment."}
+  ];
+  $("#vDetail").innerHTML = `
+    <div class="dh"><span class="em">${m.emoji}</span><div><h2>${esc(m.name)}</h2><div class="sub">${esc(m.subj)}, niveau ${lv}${lv >= 6 ? " (maximum)" : ""}</div></div></div>
+    <div class="vprog" style="margin:12px 0 5px"><i style="width:${p.pct}%;background:${m.color}"></i></div>
+    <div class="sub">${p.next ? `${Math.floor(p.pts)} points, encore ${Math.ceil(p.remaining)} pour le niveau ${lv+1}, soit environ ${fmtMin(Math.ceil(p.remaining / 1.25))} de révision` : `${Math.floor(p.pts)} points, niveau maximal atteint`}</div>
+    <div class="sub" style="margin-top:5px">Production : ${fmtRate1(PROD[lv-1] * (G.focus === m.id ? 2 : 1))} point par heure de village${G.focus === m.id ? " (chantier prioritaire)" : ""}</div>
+    <div class="btnrow"><button class="btn-line" id="focusModBtn" ${S.isParent ? "disabled" : ""}>${G.focus === m.id ? "Retirer le chantier prioritaire" : "Définir comme chantier prioritaire"}</button></div>
+    <div class="sub" style="margin-top:6px">Le chantier prioritaire double la production et reçoit les bonus des quêtes.</div>
+    <h3 class="subh">Récompenses</h3>
+    ${rows.map(r => `<div class="rew ${lv >= r.l ? "" : "lock"}"><span class="ico">${lv >= r.l ? r.ico : "🔒"}</span><div style="flex:1;min-width:0"><span class="lv">Niveau ${r.l}</span><b>${esc(r.t)}</b><small>${esc(r.d)}</small></div>${r.act || ""}</div>`).join("")}`;
+}
+function renderQuestsPanel(){
+  const qs = weeklyQuests(), tm = questTarget();
+  $("#vQuests").innerHTML = `<div class="panel-h"><h2>Quêtes de la semaine</h2><span class="sub">Bonus versés à ${esc(tm.name)}</span></div>` +
+    qs.map(q => `<div class="qrow ${q.done ? "ok" : ""}"><div class="qt"><b>${q.done ? "✓ " : ""}${esc(q.text)}</b><span>${Math.min(q.cur, q.target)} / ${q.target}${q.unit || ""}</span></div><div class="qb"><i style="width:${Math.min(100, q.cur / q.target * 100)}%"></i></div><div class="sub">+${q.r} points</div></div>`).join("") +
+    `<div class="sub" style="margin-top:10px">Elles changent chaque lundi.</div>`;
+}
+function renderChron(){
+  const box = $("#vChron");
+  box.hidden = !featureOn("chron");
+  if(box.hidden) return;
+  $("#vChronList").innerHTML = G.log.length ? G.log.slice(0, 14).map(e => `<div><time>${new Date(e.t).toLocaleDateString("fr-FR", {day:"numeric", month:"short"})}</time><span>${esc(e.x)}</span></div>`).join("") : `<div class="empty">Rien à raconter pour l'instant.</div>`;
+}
+function renderVillage(){
+  if(!gameReady) return;
+  const T = totalPts(), r = rankInfo(T);
+  $("#vRank").textContent = r.name;
+  $("#vPts").textContent = `${fmtNum(T)} points de savoir`;
+  $("#vRankBar").style.width = r.pct + "%";
+  $("#vRankNext").textContent = r.next ? `${r.next[1]} à ${fmtNum(r.next[0])} points` : "Rang maximal atteint";
+  renderBoard(); renderDetail(); renderQuestsPanel(); renderChron();
+}
+$("#vBoard").addEventListener("click", e => { const t = e.target.closest("[data-mod]"); if(t){ selectedMod = t.dataset.mod; renderBoard(); renderDetail(); } });
+$("#vDetail").addEventListener("click", e => {
+  const sk = e.target.closest("[data-skin]"); if(sk){ applySkin(sk.dataset.skin); toast("Thème appliqué"); return; }
+  if(e.target.closest("#focusModBtn") && !S.isParent){
+    G.focus = G.focus === selectedMod ? null : selectedMod;
+    scheduleGameSave(true); renderVillage(); renderGameLive(true);
+  }
+});
+
+/* ----- Thèmes ----- */
+const SKIN_KEY = "carnet-skin";
+const currentSkin = () => { try{ return localStorage.getItem(SKIN_KEY) || "default"; }catch(e){ return "default"; } };
+function applySkin(id){
+  if(!skinUnlocked(id)) id = "default";
+  if(id === "default") delete document.documentElement.dataset.skin; else document.documentElement.dataset.skin = id;
+  try{ localStorage.setItem(SKIN_KEY, id); }catch(e){}
+}
+(() => { const id = currentSkin(); if(id !== "default") document.documentElement.dataset.skin = id; })();
+
+/* ----- Fonctions débloquées ----- */
+let sound = {ctx:null, node:null, mode:0};
+const SOUND_LABEL = ["Ambiance", "Bruit brun", "Pluie"];
+function audioCtx(){ return sound.ctx ||= new (window.AudioContext || window.webkitAudioContext)(); }
+function stopSound(){ try{ sound.node && sound.node.stop(); }catch(e){} sound.node = null; }
+function setSound(mode){
+  stopSound(); sound.mode = mode;
+  if(mode){
+    try{
+      const ctx = audioCtx(); ctx.resume();
+      const len = ctx.sampleRate * 4, buf = ctx.createBuffer(1, len, ctx.sampleRate), d = buf.getChannelData(0);
+      let last = 0;
+      for(let i = 0; i < len; i++){ const w = Math.random()*2 - 1; if(mode === 1){ last = (last + 0.02*w) / 1.02; d[i] = last * 3.2; } else d[i] = w * 0.6; }
+      const src = ctx.createBufferSource(); src.buffer = buf; src.loop = true;
+      const g = ctx.createGain(); g.gain.value = mode === 1 ? 0.5 : 0.18;
+      if(mode === 2){
+        const hp = ctx.createBiquadFilter(); hp.type = "highpass"; hp.frequency.value = 700;
+        const lp = ctx.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 7000;
+        src.connect(hp); hp.connect(lp); lp.connect(g);
+      } else src.connect(g);
+      g.connect(ctx.destination); src.start(); sound.node = src;
+    }catch(e){ sound.mode = 0; }
+  }
+  updateExtras();
+}
+function beep(){
+  try{
+    const ctx = audioCtx(), o = ctx.createOscillator(), g = ctx.createGain(), t = ctx.currentTime;
+    o.frequency.value = 880; g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.2, t + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.5);
+    o.connect(g); g.connect(ctx.destination); o.start(); o.stop(t + 0.55);
+  }catch(e){}
+}
+let pomoOn = (() => { try{ return localStorage.getItem("carnet-pomo") === "1"; }catch(e){ return false; } })(), pomoBlocks = 0;
+const syncPomo = () => { pomoBlocks = Math.floor(elapsedMs() / (25 * 60000)); };
+function updateExtras(){
+  const any = featureOn("sound") || featureOn("focus") || featureOn("pomo");
+  $("#timerExtras").hidden = !any;
+  $("#soundBtn").hidden = !featureOn("sound"); $("#soundBtn").textContent = "🎧 " + SOUND_LABEL[sound.mode];
+  $("#focusBtn").hidden = !featureOn("focus");
+  $("#pomoBtn").hidden = !featureOn("pomo"); $("#pomoBtn").textContent = "☕ Pauses";
+  $("#pomoBtn").classList.toggle("on", pomoOn); $("#soundBtn").classList.toggle("on", sound.mode > 0);
+  const last = done().slice().sort((a,b) => b.date.localeCompare(a.date) || (b.createdAt||0) - (a.createdAt||0))[0];
+  $("#resumeBtn").hidden = !(featureOn("resume") && last && F.mode === "done");
+}
+$("#soundBtn").addEventListener("click", () => setSound((sound.mode + 1) % 3));
+$("#pomoBtn").addEventListener("click", () => { pomoOn = !pomoOn; try{ localStorage.setItem("carnet-pomo", pomoOn ? "1" : "0"); }catch(e){} syncPomo(); updateExtras(); });
+$("#focusBtn").addEventListener("click", () => { $("#focusOverlay").hidden = false; renderTimer(); });
+$("#foClose").addEventListener("click", () => { $("#focusOverlay").hidden = true; });
+$("#foToggle").addEventListener("click", () => $("#timerToggle").click());
+document.addEventListener("keydown", e => { if(e.key === "Escape") $("#focusOverlay").hidden = true; });
+$("#resumeBtn").addEventListener("click", () => {
+  const last = done().slice().sort((a,b) => b.date.localeCompare(a.date) || (b.createdAt||0) - (a.createdAt||0))[0];
+  if(last) prefill({m:last.matiere, sujet:last.sujet, min:last.duree});
+});
+function renderCountdown(){
+  const pill = $("#countPill"), d = S.settings.countdownDate;
+  if(!featureOn("count") || !d || daysDiff(d) < 0){ pill.hidden = true; return; }
+  pill.hidden = false;
+  pill.textContent = `J−${daysDiff(d)}${S.settings.countdownLabel ? " · " + S.settings.countdownLabel : ""}`;
+}
+function renderHeat(){
+  const el = $("#aHeat"); if(!el) return;
+  const byDay = {}; done().forEach(s => { byDay[s.date] = (byDay[s.date] || 0) + (s.duree || 0); });
+  const W = 34, start = addDays(mondayOf(todayISO()), -(W-1)*7), cell = 14, gap = 3;
+  let s = "";
+  for(let w = 0; w < W; w++) for(let d = 0; d < 7; d++){
+    const iso = addDays(start, w*7 + d); if(iso > todayISO()) continue;
+    const m = byDay[iso] || 0, lvl = m === 0 ? 0 : m < 30 ? 1 : m < 60 ? 2 : m < 90 ? 3 : 4;
+    const fill = lvl === 0 ? "var(--panel-2)" : `color-mix(in srgb, var(--blue) ${[0,28,52,76,100][lvl]}%, var(--panel))`;
+    s += `<rect x="${24 + w*(cell+gap)}" y="${d*(cell+gap)}" width="${cell}" height="${cell}" rx="3" style="fill:${fill}"><title>${fmtDate(iso)} : ${m ? fmtMin(m) : "rien"}</title></rect>`;
+  }
+  ["L","","M","","V","",""].forEach((l,i) => { if(l) s += `<text class="svl" x="0" y="${i*(cell+gap)+11}">${l}</text>`; });
+  el.innerHTML = `<svg class="chart" viewBox="0 0 ${24 + W*(cell+gap)} ${7*(cell+gap)}" role="img" style="max-width:640px">${s}</svg>`;
+}
+function renderRadar(){
+  const el = $("#aRadar"); if(!el) return;
+  const t = todayISO(), list = inRange(done(), addDays(t,-29), t);
+  const subs = Object.keys(SCHEDULE);
+  const vals = subs.map(m => sumMin(list.filter(s => s.matiere === m)));
+  const max = Math.max(...vals, 1);
+  if(!list.length){ el.innerHTML = `<div class="empty">Pas encore de séance sur 30 jours.</div>`; return; }
+  const C = 130, R = 88, n = subs.length;
+  const pt = (i, r) => { const a = -Math.PI/2 + i * 2*Math.PI/n; return [C + Math.cos(a)*r, C + Math.sin(a)*r]; };
+  let s = [0.33, 0.66, 1].map(f => `<polygon points="${subs.map((_,i) => pt(i, R*f).map(v => v.toFixed(1)).join(",")).join(" ")}" style="fill:none;stroke:var(--line)"/>`).join("");
+  s += subs.map((_,i) => { const p = pt(i, R); return `<line x1="${C}" y1="${C}" x2="${p[0].toFixed(1)}" y2="${p[1].toFixed(1)}" style="stroke:var(--line)"/>`; }).join("");
+  s += `<polygon points="${vals.map((v,i) => pt(i, Math.max(3, R*v/max)).map(x => x.toFixed(1)).join(",")).join(" ")}" style="fill:var(--blue);fill-opacity:.25;stroke:var(--blue);stroke-width:2"/>`;
+  s += subs.map((m,i) => { const p = pt(i, R + 16); return `<text class="svt" x="${p[0].toFixed(1)}" y="${(p[1]+3).toFixed(1)}" text-anchor="middle">${esc(shortOf(m))}</text>`; }).join("");
+  el.innerHTML = `<svg class="chart" viewBox="-40 -6 340 272" role="img" style="max-width:420px;margin:0 auto">${s}</svg>`;
+}
+
+/* ----- Paramètres : thèmes et fonctions ----- */
+function renderSettingsGame(){
+  const cur = currentSkin();
+  const skins = [{id:"default", name:"Papier", sw:["#FBFCFE","#1D3FA6"], ok:true, req:""}].concat(MODULES.map(m => ({id:m.skin.id, name:m.skin.name, sw:m.skin.sw, ok:levelOf(m) >= SKIN_LV, req:`Niveau ${SKIN_LV} ${m.de}`})));
+  $("#skinList").innerHTML = skins.map(k => `<button class="skinbtn ${k.id === cur ? "on" : ""}" data-skin="${k.id}" ${k.ok ? "" : "disabled"} title="${esc(k.ok ? k.name : k.req)}"><span class="sw" style="background:linear-gradient(135deg,${k.sw[0]} 50%,${k.sw[1]} 50%)"></span>${esc(k.name)}${k.ok ? "" : " 🔒"}</button>`).join("");
+  $("#featList").innerHTML = MODULES.map(m => {
+    const on = levelOf(m) >= FEATURE_LV, need = Math.ceil(LEVEL_PTS[FEATURE_LV-1] * m.k - modPts(m));
+    const ctrl = !on ? "" : m.feat.id === "goal"
+      ? `<input class="input" type="number" id="setGoal" min="0" max="2000" placeholder="Minutes sur 7 jours (0 pour désactiver)" value="${+S.settings.weeklyGoal || ""}" style="margin-top:6px">`
+      : m.feat.id === "count"
+      ? `<div class="row2" style="margin-top:6px"><input class="input" id="setCdLabel" placeholder="Intitulé" value="${esc(S.settings.countdownLabel || "")}"><input class="input" type="date" id="setCdDate" value="${esc(S.settings.countdownDate || "")}"></div>` : "";
+    return `<div class="feat ${on ? "" : "lock"}"><b>${on ? "✓" : "🔒"} ${esc(m.feat.name)}</b><small>${on ? esc(m.feat.desc) : `Niveau ${FEATURE_LV} ${m.de}, encore ${need} points`}</small>${ctrl}</div>`;
+  }).join("");
+}
+$("#skinList").addEventListener("click", e => { const b = e.target.closest("[data-skin]"); if(b && !b.disabled){ applySkin(b.dataset.skin); renderSettingsGame(); } });
+$("#featList").addEventListener("change", e => {
+  if(e.target.id === "setGoal") saveSettings({weeklyGoal: Math.max(0, Math.round(+e.target.value || 0))}, "Objectif enregistré").then(() => renderAll());
+  if(e.target.id === "setCdLabel" || e.target.id === "setCdDate") saveSettings({countdownLabel: $("#setCdLabel").value.trim(), countdownDate: $("#setCdDate").value}, "Compte à rebours enregistré").then(() => renderCountdown());
+});
 
 /* ================= Minuteur ================= */
 const TKEY = "carnet-timer-v2";
@@ -872,12 +1489,20 @@ function renderTimer(){
   const pill = $("#timerPill");
   pill.hidden = !(T.run || ms > 0);
   pill.textContent = `⏱ ${fmtClock(ms)}`;
+  if(!$("#focusOverlay").hidden){
+    $("#foDigits").textContent = fmtClock(ms); $("#foToggle").textContent = T.run ? "❚❚" : "▶";
+    $("#foMat").textContent = F.mat ? shortOf(F.mat) + ($("#sujet").value.trim() ? " · " + $("#sujet").value.trim() : "") : "Concentration";
+  }
+  if(T.run && gameReady && pomoOn && featureOn("pomo")){
+    const b = Math.floor(ms / (25 * 60000));
+    if(b > pomoBlocks){ pomoBlocks = b; toast(`${b * 25} minutes de travail : fais une pause de 5 minutes`); beep(); }
+  }
 }
 $("#timerToggle").addEventListener("click", () => {
   if(T.run){ T.acc = elapsedMs(); T.run = false; } else { T.start = Date.now(); T.run = true; }
-  saveT(); renderTimer();
+  saveT(); syncPomo(); renderTimer();
 });
-$("#timerReset").addEventListener("click", () => { T = {run:false, start:0, acc:0}; saveT(); renderTimer(); });
+$("#timerReset").addEventListener("click", () => { T = {run:false, start:0, acc:0}; saveT(); syncPomo(); renderTimer(); });
 $("#timerUse").addEventListener("click", () => {
   const min = Math.max(1, Math.round(elapsedMs()/60000));
   T.acc = elapsedMs(); T.run = false; saveT();
@@ -978,10 +1603,11 @@ function updateEntry(){
       $("#revoirHint").textContent = "Aucune révision ne sera prévue";
     }
     // Aperçu de la récompense
-    const min = +$("#duree").value;
-    if(min > 0){
+    const min = +$("#duree").value, mod = modBySubj(m);
+    if(min > 0 && mod && gameReady){
+      const calc = sessionPoints(m, $("#date").value || todayISO(), min, F.diff, !!F.pending);
       $("#rewardBox").hidden = false;
-      $("#rewardBox").textContent = `Cette séance rapportera environ ${fmtNum(rewardFor(min, F.diff))} points de savoir et ${fmtDur(fuelFor(min))} d'énergie à l'Académie`;
+      $("#rewardBox").textContent = `+${calc.pts} points pour ${mod.name}, et ${fmtDur(calc.eff * ENERGY_PER_MIN * 60)} d'énergie pour le village${calc.capped ? ` (au-delà de ${DAY_FULL_MIN} min par jour dans une matière, les minutes comptent moitié)` : ""}`;
     } else $("#rewardBox").hidden = true;
   } else $("#rewardBox").hidden = true;
 }
@@ -1023,6 +1649,7 @@ $("#saveBtn").addEventListener("click", async () => {
   const sujet = $("#sujet").value.trim(), notes = $("#notes").value.trim();
   const evalId = $("#linkEvalBox").hidden ? null : ($("#linkEval").value || null);
   const btn = $("#saveBtn"); btn.disabled = true;
+  let savedMsg = "";
   try{
     if(F.mode === "plan"){
       const planned = $("#date").value || addDays(todayISO(), 1);
@@ -1035,17 +1662,18 @@ $("#saveBtn").addEventListener("click", async () => {
       if(!F.diff){ toast("Choisis la difficulté ressentie"); btn.disabled = false; return; }
       const date = $("#date").value || todayISO();
       const revoirDate = $("#revoirOn").checked ? ($("#revoirDate").value || adjustForEval(m, suggestReview(F.diff, date, occurrence(m, sujet))).date) : null;
-      const obj = {matiere:m, sujet, date, duree, difficulte:F.diff, notes, revoirDate, revu:false, planifiee:false, evalId, createdAt:Date.now()};
+      const calc = sessionPoints(m, date, duree, F.diff, !!F.pending);
+      const obj = {matiere:m, sujet, date, duree, difficulte:F.diff, notes, revoirDate, revu:false, planifiee:false, evalId, createdAt:Date.now(), pts:modBySubj(m) ? calc.pts : 0, fromReview:!!F.pending};
       const r = await addDoc(colSessions, obj); S.sessions.push({id:r.id, ...obj});
       if(F.pending){
         await updateDoc(doc(db, "sessions", F.pending.id), {revu:true});
         const p = S.sessions.find(s => s.id === F.pending.id); if(p) p.revu = true;
       }
-      const reward = grantReward(duree, F.diff);
-      if(T.acc || T.run){ T = {run:false, start:0, acc:0}; saveT(); renderTimer(); }
-      toast(`Séance enregistrée : +${fmtNum(reward)} points de savoir`);
+      afterSession(calc);
+      if(T.acc || T.run){ T = {run:false, start:0, acc:0}; saveT(); syncPomo(); renderTimer(); }
+      savedMsg = modBySubj(m) ? `Séance enregistrée : +${calc.pts} points pour ${modBySubj(m).name}` : "Séance enregistrée";
     }
-    resetForm(); renderAll();
+    resetForm(); renderAll(savedMsg);
   }catch(e){
     toast("Enregistrement impossible, vérifie ta connexion");
   }finally{ btn.disabled = false; }
@@ -1060,6 +1688,9 @@ function renderKPIs(){
   const d = $("#kWeekD");
   if(p > 0){ const diff = w - p; d.textContent = `${diff >= 0 ? "+" : "−"}${fmtMin(Math.abs(diff))} sur 7 jours glissants`; d.title = "Écart avec les 7 jours précédents"; d.className = "d " + (diff >= 0 ? "up" : "down"); }
   else d.textContent = "";
+  const goal = +S.settings.weeklyGoal || 0, showGoal = gameReady && featureOn("goal") && goal > 0;
+  $("#kGoal").hidden = !showGoal;
+  if(showGoal){ $("#kBar").style.width = Math.min(100, w / goal * 100) + "%"; $("#kGoalTxt").textContent = `Objectif ${fmtMin(goal)} : ${Math.round(w / goal * 100)} %`; }
   $("#kCount").textContent = week.length;
   const due = dueReviews(), late = due.filter(s => s.revoirDate < t).length;
   $("#kDue").textContent = due.length;
@@ -1106,7 +1737,7 @@ function renderDue(){
     if(okB){
       if(S.isParent) return;
       const s = S.sessions.find(x => x.id === okB.dataset.ok);
-      try{ await updateDoc(doc(db,"sessions",s.id), {revu:true}); s.revu = true; renderAll(); toast("Révision marquée comme faite"); }
+      try{ await updateDoc(doc(db,"sessions",s.id), {revu:true, revuDate:todayISO()}); s.revu = true; s.revuDate = todayISO(); renderAll(); toast("Révision marquée comme faite"); }
       catch(err){ toast("Mise à jour impossible"); }
     }
   };
@@ -1222,10 +1853,10 @@ function lineChart(el, data){
 function mondayOf(iso){ const d = new Date(iso+"T00:00:00"); d.setDate(d.getDate() - ((d.getDay()||7) - 1)); return toISO(d); }
 function weeks(n){ const m0 = mondayOf(todayISO()); return Array.from({length:n}, (_,i) => addDays(m0, -(n-1-i)*7)); }
 
-const SECTIONS = {repartition:"Temps par matière", weekly:"Temps par semaine", weekday:"Jours de révision", difficulty:"Difficulté ressentie", history:"Historique", bilan:"Bilan à partager", pronote:"Notes Pronote"};
+const SECTIONS = {repartition:"Temps par matière", weekly:"Temps par semaine", weekday:"Jours de révision", difficulty:"Difficulté ressentie", history:"Historique", heat:"Constance sur l'année", radar:"Équilibre des matières", bilan:"Bilan à partager", pronote:"Notes Pronote"};
 const PREF_KEY = "carnet-analyse-sections";
 let secPrefs = (() => { try{ return {...Object.fromEntries(Object.keys(SECTIONS).map(k => [k,true])), ...JSON.parse(localStorage.getItem(PREF_KEY)||"{}")}; }catch(e){ return Object.fromEntries(Object.keys(SECTIONS).map(k => [k,true])); } })();
-function applySecPrefs(){ $$("[data-sec]").forEach(el => el.hidden = !secPrefs[el.dataset.sec]); }
+function applySecPrefs(){ $$("[data-sec]").forEach(el => el.hidden = !secPrefs[el.dataset.sec] || (!!el.dataset.feat && !(gameReady && featureOn(el.dataset.feat)))); }
 
 function renderAnalyse(){
   applySecPrefs();
@@ -1256,6 +1887,7 @@ function renderAnalyse(){
   lineChart($("#aDifficulty"), ws.map(w => { const l = inRange(withDiff, w, addDays(w,6)); return {l:new Date(w+"T00:00:00").toLocaleDateString("fr-FR",{day:"numeric",month:"short"}), v: l.length ? l.reduce((a,s)=>a+s.difficulte,0)/l.length : null}; }));
 
   renderHistory();
+  if(gameReady){ if(featureOn("heat")) renderHeat(); if(featureOn("radar")) renderRadar(); }
   renderBilan();
   $("#pronoteForm").hidden = false;
 }
@@ -1359,7 +1991,7 @@ $("#openSettings").addEventListener("click", () => {
   $("#setReportUrl").value = S.settings.reportUrl || "";
   $("#setPronoteUrl").value = S.settings.pronoteUrl || "";
   $("#secChecks").innerHTML = Object.entries(SECTIONS).map(([k,l]) => `<label class="check"><input type="checkbox" data-pref="${k}" ${secPrefs[k] ? "checked" : ""}> ${esc(l)}</label>`).join("");
-  renderCleanGroups();
+  renderCleanGroups(); renderSettingsGame();
   openModal("settingsModal");
 });
 
@@ -1451,14 +2083,27 @@ function switchView(v){
   $$(".tabs button").forEach(b => b.classList.toggle("on", b.dataset.view === v));
   $$(".view").forEach(s => s.classList.toggle("on", s.id === "view-"+v));
   if(v === "analyse") renderAnalyse();
+  if(v === "village") renderVillage();
 }
 $$(".tabs button").forEach(b => b.addEventListener("click", () => switchView(b.dataset.view)));
 $("#seeAllBtn").addEventListener("click", () => switchView("analyse"));
 
-function renderAll(){
+function renderAll(prefix){
+  let msgs = [];
+  if(gameReady){
+    const m1 = checkLevelUps(), m2 = checkQuests(), m3 = m2.length ? checkLevelUps() : [];
+    msgs = [...m1, ...m2, ...m3];
+  }
   renderKPIs(); renderSuggestions(); renderDue(); renderEvals(); renderRecent(); updateEntry();
   if($("#view-analyse").classList.contains("on")) renderAnalyse();
-  if(gameReady){ renderGameLive(); renderBuildings(true); }
+  if(gameReady){
+    renderGameLive(true);
+    if($("#view-village").classList.contains("on")) renderVillage();
+    updateExtras(); renderCountdown();
+    if(!skinUnlocked(currentSkin())) applySkin("default");
+  }
+  const all = [prefix, ...msgs].filter(Boolean);
+  if(all.length) toast(all.join("  ·  "));
 }
 
 /* ================= Connexion ================= */
@@ -1506,8 +2151,13 @@ onAuthStateChanged(auth, async user => {
   if(!loopsStarted){
     loopsStarted = true;
     setInterval(renderTimer, 500);
-    setInterval(() => { if(gameReady){ tick(); renderGameLive(); } }, 250);
-    setInterval(() => { if(gameReady) renderBuildings(); }, 1000);
+    setInterval(() => {
+      if(!gameReady) return;
+      tick();
+      const m = checkLevelUps();
+      renderGameLive();
+      if(m.length) toast(m.join("  ·  "));
+    }, 1000);
     setInterval(() => { if(S.user) { renderKPIs(); } }, 60000);
   }
 });
