@@ -362,6 +362,20 @@ html[data-skin="foret"]{color-scheme:dark;--paper:#0F1A14;--grid:#15251C;--panel
 html[data-skin="serre"]{color-scheme:light;--paper:#F4F9EC;--grid:#E3EFD3;--panel:#FFFFFF;--panel-2:#EDF4E1;--line:#D3E3BE;--ink:#1F3318;--ink-2:#4E6B43;--ink-3:#839C77;--blue:#3E8E2F;--on-blue:#fff;--blue-soft:#DDEFD3;--red:#C8352C;--red-soft:#FBE7E5;--amber:#A86A0C;--amber-soft:#F8EBC9;--green:#2E7A22;--green-soft:#DDEFD3;--hl:#B7E04A;--hl-ink:#1E2A06}
 html[data-skin="marianne"]{color-scheme:light;--paper:#F7F8FC;--grid:#E3E7F3;--panel:#FFFFFF;--panel-2:#EEF1F9;--line:#D5DBEC;--ink:#14213D;--ink-2:#4A5778;--ink-3:#8590AD;--blue:#002395;--on-blue:#fff;--blue-soft:#DDE3F7;--red:#ED2939;--red-soft:#FCE3E5;--amber:#B86A10;--amber-soft:#FCF0DE;--green:#1E7A4E;--green-soft:#E1F3E9;--hl:#ED2939;--hl-ink:#fff}
 
+/* ---------- Effort et résultats ---------- */
+.mxbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.mx-wrap{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:18px;align-items:start}
+.mxrow{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:9px;padding:7px 10px;margin-bottom:7px;font-size:13px}
+.mxrow .nm{flex:1;min-width:0}
+.mxrow .nm b{display:block}
+.mxrow .nm small{color:var(--ink-3);font-size:12px}
+.qtag{font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap;background:var(--panel-2);color:var(--ink-2)}
+.qtag.q-ok{background:var(--green-soft);color:var(--green)}
+.qtag.q-eff{background:var(--amber-soft);color:var(--amber)}
+.qtag.q-weak{background:var(--red-soft);color:var(--red)}
+.qtag.q-marge{background:var(--blue-soft);color:var(--blue)}
+.mxadvice{font-size:12.5px;color:var(--ink-2);margin-top:10px;line-height:1.5}
+.mxadvice p{margin:0 0 7px}
 /* ---------- Écrans plus étroits ---------- */
 @media (max-width:1280px){
   .dash{grid-template-columns:330px minmax(0,1fr)}
@@ -378,7 +392,7 @@ html[data-skin="marianne"]{color-scheme:light;--paper:#F7F8FC;--grid:#E3E7F3;--p
   .view.on{display:flex;flex-direction:column}
   .dash,.analyse{padding:12px}
   .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .sugs,.split,.set-grid{grid-template-columns:1fr}
+  .sugs,.split,.set-grid,.mx-wrap{grid-template-columns:1fr}
   .village{grid-template-columns:1fr}
   .vboard{min-width:0;max-width:none;width:100%}
   .analyse .span2{grid-column:auto}
@@ -601,6 +615,15 @@ html[data-skin="marianne"]{color-scheme:light;--paper:#F7F8FC;--grid:#E3E7F3;--p
       <div class="panel span2" data-sec="heat" data-feat="heat"><div class="panel-h"><h2>Constance sur l'année</h2><span class="sub">34 dernières semaines</span></div><div id="aHeat"></div></div>
       <div class="panel" data-sec="radar" data-feat="radar"><div class="panel-h"><h2>Équilibre des matières</h2><span class="sub">30 derniers jours</span></div><div id="aRadar"></div></div>
 
+      <div class="panel span2" data-sec="matrix">
+        <div class="panel-h"><h2>Effort et résultats</h2><span class="sub">Indicatif : une matière difficile fait réviser plus et note souvent moins</span></div>
+        <div class="mxbar">
+          <div class="chiprow" id="mxPeriod"><button class="cchip" data-d="30">30 jours</button><button class="cchip on" data-d="60">60 jours</button><button class="cchip" data-d="90">90 jours</button><button class="cchip" data-d="0">Depuis le début</button></div>
+          <div class="seg" id="mxMode"><button class="on" data-m="gap">Écart à la classe</button><button data-m="avg">Note moyenne</button></div>
+        </div>
+        <div id="aMatrix"></div>
+      </div>
+
       <div class="panel" data-sec="bilan">
         <div class="panel-h"><h2>Bilan à partager</h2></div>
         <div class="chiprow" id="bilanPeriod">
@@ -617,15 +640,20 @@ html[data-skin="marianne"]{color-scheme:light;--paper:#F7F8FC;--grid:#E3E7F3;--p
       </div>
 
       <div class="panel span2" data-sec="pronote">
-        <div class="panel-h"><h2>Notes Pronote</h2><span class="sub">Identifiants utilisés une seule fois, jamais enregistrés</span></div>
+        <div class="panel-h"><h2>Pronote : devoirs et notes</h2><span class="sub">Identifiants utilisés une seule fois, jamais enregistrés</span></div>
         <div id="pronoteForm">
           <div class="row2">
             <div><label class="lbl" for="pnUser">Identifiant Pronote</label><input class="input" id="pnUser" autocomplete="off"></div>
             <div><label class="lbl" for="pnPass">Mot de passe Pronote</label><input class="input" id="pnPass" type="password" autocomplete="off"></div>
           </div>
-          <div class="btnrow"><button class="btn-line" id="pnFetch">Récupérer mes notes</button></div>
+          <div class="btnrow"><button class="btn-line" id="pnFetch">Récupérer mes devoirs et mes notes</button></div>
         </div>
-        <div id="pronoteResult" style="margin-top:10px;max-height:300px;overflow:auto"></div>
+        <div id="pronoteHw" hidden style="margin-top:14px">
+          <div class="panel-h" style="margin-bottom:8px"><h2 style="font-size:14px">Devoirs des 30 prochains jours</h2><button class="btn-line" id="pnAddAll">Ajouter tous les devoirs à faire</button></div>
+          <div id="pnHwList" style="max-height:320px;overflow:auto"></div>
+        </div>
+        <h2 id="pnGradesTitle" hidden style="font-size:14px;margin:14px 0 6px">Notes</h2>
+        <div id="pronoteResult" style="max-height:300px;overflow:auto"></div>
       </div>
     </section>
   </main>
@@ -697,8 +725,12 @@ html[data-skin="marianne"]{color-scheme:light;--paper:#F7F8FC;--grid:#E3E7F3;--p
         <div id="secChecks"></div>
 
         <h3>Sauvegarde</h3>
-        <p>Télécharge toutes les données (séances, évaluations, Académie) dans un fichier.</p>
+        <p>Télécharge toutes les données (séances, évaluations, notes Pronote, village) dans un fichier.</p>
         <button class="btn-line" id="exportBtn">Télécharger une sauvegarde</button>
+
+        <h3>Notes Pronote enregistrées</h3>
+        <p id="gradesCount"></p>
+        <button class="btn-danger" id="delGradesBtn">Supprimer les notes enregistrées</button>
 
         <h3>Nettoyer les données de test</h3>
         <p>Données regroupées selon le profil qui les a saisies, à l'époque des profils. Télécharge une sauvegarde avant de supprimer.</p>
@@ -745,6 +777,7 @@ const db = getFirestore(fb);
 const auth = getAuth(fb);
 const colSessions = collection(db, "sessions");
 const colEvals = collection(db, "evaluations");
+const colGrades = collection(db, "grades");
 const settingsRef = doc(db, "settings", "app");
 const gameRef = doc(db, "game", "state");
 
@@ -786,7 +819,7 @@ const DIFF_EMOJI = ["😄","🙂","😐","😕","😩"];
 const DIFF_LABEL = ["Facile","Plutôt facile","Moyen","Difficile","Très difficile"];
 
 /* ================= État ================= */
-const S = { user:null, isParent:false, sessions:[], evals:[], settings:{reportEmails:[], reportUrl:"", pronoteUrl:""} };
+const S = { user:null, isParent:false, sessions:[], evals:[], grades:[], settings:{reportEmails:[], reportUrl:"", pronoteUrl:""} };
 const F = { mode:"done", mat:null, diff:null, revoirManual:false, pending:null };
 
 /* ================= Outils ================= */
@@ -1727,7 +1760,7 @@ function renderDue(){
   $("#dueList").innerHTML = list.map(s => `
     <div class="item">
       <span class="dot" style="--c:${colorOf(s.matiere)}"></span>
-      <div class="txt"><b>${esc(shortOf(s.matiere))}${s.planifiee ? '<span class="tag">Programmée</span>' : ""}</b><small><span class="when ${whenClass(s.revoirDate)}">${whenLabel(s.revoirDate)}</span><span class="s">${esc(s.sujet || "Sans chapitre précisé")}</span></small></div>
+      <div class="txt"><b>${esc(shortOf(s.matiere))}${s.source === "pronote" ? '<span class="tag">Devoir</span>' : s.planifiee ? '<span class="tag">Programmée</span>' : ""}</b><small><span class="when ${whenClass(s.revoirDate)}">${whenLabel(s.revoirDate)}</span><span class="s">${esc(s.sujet || "Sans chapitre précisé")}${s.dueDate ? ` · pour le ${fmtDate(s.dueDate)}` : ""}</span></small></div>
       <div class="acts"><button class="mini go" data-do="${s.id}">Faire</button>
       <button class="x" data-ok="${s.id}" title="Marquer comme faite sans saisir de séance" aria-label="Marquer comme faite">✓</button></div>
     </div>`).join("") || `<div class="empty">Aucune révision en attente.</div>`;
@@ -1853,7 +1886,7 @@ function lineChart(el, data){
 function mondayOf(iso){ const d = new Date(iso+"T00:00:00"); d.setDate(d.getDate() - ((d.getDay()||7) - 1)); return toISO(d); }
 function weeks(n){ const m0 = mondayOf(todayISO()); return Array.from({length:n}, (_,i) => addDays(m0, -(n-1-i)*7)); }
 
-const SECTIONS = {repartition:"Temps par matière", weekly:"Temps par semaine", weekday:"Jours de révision", difficulty:"Difficulté ressentie", history:"Historique", heat:"Constance sur l'année", radar:"Équilibre des matières", bilan:"Bilan à partager", pronote:"Notes Pronote"};
+const SECTIONS = {repartition:"Temps par matière", weekly:"Temps par semaine", weekday:"Jours de révision", difficulty:"Difficulté ressentie", history:"Historique", heat:"Constance sur l'année", radar:"Équilibre des matières", matrix:"Effort et résultats", bilan:"Bilan à partager", pronote:"Pronote : devoirs et notes"};
 const PREF_KEY = "carnet-analyse-sections";
 let secPrefs = (() => { try{ return {...Object.fromEntries(Object.keys(SECTIONS).map(k => [k,true])), ...JSON.parse(localStorage.getItem(PREF_KEY)||"{}")}; }catch(e){ return Object.fromEntries(Object.keys(SECTIONS).map(k => [k,true])); } })();
 function applySecPrefs(){ $$("[data-sec]").forEach(el => el.hidden = !secPrefs[el.dataset.sec] || (!!el.dataset.feat && !(gameReady && featureOn(el.dataset.feat)))); }
@@ -1888,6 +1921,7 @@ function renderAnalyse(){
 
   renderHistory();
   if(gameReady){ if(featureOn("heat")) renderHeat(); if(featureOn("radar")) renderRadar(); }
+  renderMatrix();
   renderBilan();
   $("#pronoteForm").hidden = false;
 }
@@ -1965,7 +1999,176 @@ $("#bilanPrint").addEventListener("click", () => {
   w.document.close(); w.focus(); setTimeout(() => w.print(), 300);
 });
 
+/* ----- Notes enregistrées et matrice effort / résultat ----- */
+const numOf = v => { const n = parseFloat(String(v ?? "").replace(",", ".")); return Number.isFinite(n) ? n : null; };
+function gradeVals(g){
+  const v = numOf(g.grade), o = numOf(g.outOf);
+  if(v === null || !o) return null;                       // absences, dispenses, etc.
+  const a = numOf(g.average);
+  return {v20: v / o * 20, avg20: a === null ? null : a / o * 20, coef: numOf(g.coefficient) || 1};
+}
+const gradeSig = g => `${(g.date || "").slice(0, 10)}|${g.subject}|${g.grade}|${g.outOf}|${g.coefficient || ""}`;
+const gradeKey = g => g.id ? `p${g.id}` : gradeSig(g);
+async function saveGrades(list){
+  if(S.isParent) return 0;
+  const have = new Set(); S.grades.forEach(g => { have.add(g.key); have.add(gradeSig(g)); });
+  let n = 0;
+  for(const g of list){
+    const key = gradeKey(g); if(have.has(key) || have.has(gradeSig(g))) continue; have.add(key); have.add(gradeSig(g));
+    const obj = {key, pronoteId:g.id || null, matiere:matiereFromPronote(g.subject), subject:g.subject || "", grade:String(g.grade ?? ""), outOf:String(g.outOf ?? ""),
+      average:g.average ?? null, coefficient:g.coefficient ?? null, date:(g.date || "").slice(0, 10) || null, period:g.period || "", createdAt:Date.now()};
+    try{ const r = await addDoc(colGrades, obj); S.grades.push({id:r.id, ...obj}); n++; }catch(e){}
+  }
+  return n;
+}
+function renderGradesCount(){
+  const n = S.grades.length;
+  $("#gradesCount").textContent = n ? `${n} note${n > 1 ? "s" : ""} enregistrée${n > 1 ? "s" : ""}. Les identifiants Pronote ne sont jamais enregistrés.` : "Aucune note enregistrée. Les identifiants Pronote ne sont jamais enregistrés.";
+  $("#delGradesBtn").disabled = !n || S.isParent;
+}
+$("#delGradesBtn").addEventListener("click", async () => {
+  if(!S.grades.length) return;
+  if(!confirm(`Supprimer définitivement les ${S.grades.length} notes enregistrées ? Tu pourras les récupérer à nouveau depuis Pronote.`)) return;
+  try{
+    await Promise.all(S.grades.map(g => deleteDoc(doc(db, "grades", g.id))));
+    S.grades = []; renderGradesCount(); renderAll(); toast("Notes supprimées");
+  }catch(e){ toast("Suppression interrompue, réessaie"); }
+});
+
+let mxDays = 60, mxMode = "gap";
+const daysBetween = (a, b) => Math.round((new Date(b + "T00:00:00") - new Date(a + "T00:00:00")) / 86400000);
+const fmtSigned = v => (v >= 0 ? "+" : "−") + Math.abs(v).toFixed(1).replace(".", ",");
+function matrixRows(){
+  const t = todayISO(), from = mxDays ? addDays(t, -(mxDays - 1)) : "0000-00-00";
+  const all = done();
+  const firsts = [...all.map(s => s.date), ...S.grades.map(g => g.date).filter(Boolean)].sort();
+  const weeks = (mxDays || Math.max(7, daysBetween(firsts[0] || t, t) + 1)) / 7;
+  return MATIERES.filter(m => m !== "Autre").map(m => {
+    const minutes = sumMin(inRange(all.filter(s => s.matiere === m), from, t));
+    const vals = S.grades.filter(g => g.matiere === m && g.date && g.date >= from && g.date <= t).map(gradeVals).filter(Boolean);
+    const pool = mxMode === "gap" ? vals.filter(v => v.avg20 !== null) : vals;
+    const coef = pool.reduce((a, v) => a + v.coef, 0);
+    const y = pool.length ? pool.reduce((a, v) => a + (mxMode === "gap" ? v.v20 - v.avg20 : v.v20) * v.coef, 0) / coef : null;
+    return {m, x: minutes / weeks, minutes, n: pool.length, y, coef};
+  });
+}
+function renderMatrix(){
+  const el = $("#aMatrix"); if(!el) return;
+  const rows = matrixRows();
+  const plot = rows.filter(r => r.n >= 3 && r.y !== null), weak = rows.filter(r => r.n > 0 && r.n < 3);
+  if(!S.grades.length){ el.innerHTML = `<div class="empty">Aucune note enregistrée. Récupère tes notes avec le bloc Pronote plus bas : elles sont ensuite conservées, sans les identifiants.</div>`; return; }
+  if(plot.length < 3){
+    el.innerHTML = `<div class="empty">Il faut au moins 3 matières avec 3 notes chacune sur la période pour tracer la matrice${mxMode === "gap" ? " (l'écart à la classe demande aussi la moyenne de la classe)" : ""}. Pour l'instant : ${plot.length} matière${plot.length > 1 ? "s" : ""}. Essaie une période plus longue.</div>`;
+    return;
+  }
+  const xs = plot.map(r => r.x).sort((a, b) => a - b), xMed = xs.length % 2 ? xs[(xs.length - 1) / 2] : (xs[xs.length / 2 - 1] + xs[xs.length / 2]) / 2;
+  const ys = plot.map(r => r.y), cs = plot.reduce((a, r) => a + r.coef, 0);
+  const ySplit = mxMode === "gap" ? 0 : plot.reduce((a, r) => a + r.y * r.coef, 0) / cs;
+  const W = 560, H = 380, L = 56, R = 14, T = 14, B = 46;
+  const xMax = Math.max(...xs, xMed * 1.2, 10) * 1.18;
+  let yMin, yMax;
+  if(mxMode === "gap"){ const m = Math.max(2, ...ys.map(Math.abs)) * 1.45; yMin = -m; yMax = m; }
+  else { yMin = Math.max(0, Math.min(...ys, ySplit) - 2.5); yMax = Math.min(20, Math.max(...ys, ySplit) + 2.5); }
+  const sx = v => L + v / xMax * (W - L - R), sy = v => T + (yMax - v) / (yMax - yMin) * (H - T - B);
+  const qx = sx(xMed), qy = sy(ySplit);
+  const quad = r => (r.x >= xMed ? (r.y >= ySplit ? "ok" : "eff") : (r.y >= ySplit ? "marge" : "weak"));
+  const QN = {ok:"À maintenir", eff:"Effort à rentabiliser", weak:"À renforcer", marge:"Marge pour lever le pied"};
+  let s = `<rect x="${qx}" y="${T}" width="${W - R - qx}" height="${qy - T}" style="fill:color-mix(in srgb, var(--green) 11%, var(--panel))"/>
+    <rect x="${qx}" y="${qy}" width="${W - R - qx}" height="${H - B - qy}" style="fill:color-mix(in srgb, var(--amber) 13%, var(--panel))"/>
+    <rect x="${L}" y="${qy}" width="${qx - L}" height="${H - B - qy}" style="fill:color-mix(in srgb, var(--red) 10%, var(--panel))"/>
+    <rect x="${L}" y="${T}" width="${qx - L}" height="${qy - T}" style="fill:color-mix(in srgb, var(--blue) 10%, var(--panel))"/>
+    <line x1="${qx}" y1="${T}" x2="${qx}" y2="${H - B}" style="stroke:var(--ink-3)" stroke-dasharray="4 4"/>
+    <line x1="${L}" y1="${qy}" x2="${W - R}" y2="${qy}" style="stroke:var(--ink-3)" stroke-dasharray="4 4"/>
+    <rect x="${L}" y="${T}" width="${W - L - R}" height="${H - T - B}" style="fill:none;stroke:var(--line)"/>
+    <text class="svl" style="font-weight:700;fill:var(--ink-3)" x="${W - R - 6}" y="${T + 14}" text-anchor="end">${QN.ok.toUpperCase()}</text>
+    <text class="svl" style="font-weight:700;fill:var(--ink-3)" x="${W - R - 6}" y="${H - B - 8}" text-anchor="end">${QN.eff.toUpperCase()}</text>
+    <text class="svl" style="font-weight:700;fill:var(--ink-3)" x="${L + 6}" y="${H - B - 8}">${QN.weak.toUpperCase()}</text>
+    <text class="svl" style="font-weight:700;fill:var(--ink-3)" x="${L + 6}" y="${T + 14}">${QN.marge.toUpperCase()}</text>`;
+  for(let i = 0; i <= 4; i++){ const v = xMax * i / 4; s += `<text class="svl" x="${sx(v).toFixed(1)}" y="${H - B + 16}" text-anchor="middle">${Math.round(v)}</text>`; }
+  for(let i = 0; i <= 4; i++){ const v = yMin + (yMax - yMin) * i / 4; s += `<text class="svl" x="${L - 6}" y="${(sy(v) + 3.5).toFixed(1)}" text-anchor="end">${mxMode === "gap" ? fmtSigned(v).replace(",0", "") : v.toFixed(0)}</text>`; }
+  s += `<text class="svl" x="${(L + W - R) / 2}" y="${H - 8}" text-anchor="middle">Minutes révisées par semaine</text>
+    <text class="svl" transform="rotate(-90 14 ${(T + H - B) / 2})" x="14" y="${(T + H - B) / 2}" text-anchor="middle">${mxMode === "gap" ? "Écart à la moyenne de la classe (points sur 20)" : "Note moyenne sur 20"}</text>`;
+  plot.slice().sort((a, b) => b.coef - a.coef).forEach(r => {
+    const cx = sx(r.x), cy = sy(r.y), rad = Math.min(26, 8 + Math.sqrt(r.coef) * 3.2);
+    s += `<g><circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="${rad.toFixed(1)}" style="fill:${colorOf(r.m)};fill-opacity:.72;stroke:${colorOf(r.m)};stroke-width:2"/>
+      <text class="svt" x="${cx.toFixed(1)}" y="${(cy - rad - 4).toFixed(1)}" text-anchor="middle" style="font-weight:700;fill:var(--ink);paint-order:stroke;stroke:var(--panel);stroke-width:4px;stroke-linejoin:round">${esc(shortOf(r.m))}</text>
+      <title>${esc(shortOf(r.m))} : ${Math.round(r.x)} min par semaine, ${mxMode === "gap" ? fmtSigned(r.y) + " point(s) par rapport à la classe" : r.y.toFixed(1).replace(".", ",") + " sur 20"}, ${r.n} notes</title></g>`;
+  });
+  const order = {eff:0, weak:1, ok:2, marge:3};
+  const list = plot.slice().sort((a, b) => order[quad(a)] - order[quad(b)] || a.y - b.y);
+  const val = r => mxMode === "gap" ? `${fmtSigned(r.y)} point${Math.abs(r.y) >= 2 ? "s" : ""} vs la classe` : `${r.y.toFixed(1).replace(".", ",")} / 20`;
+  const advice = [];
+  list.filter(r => quad(r) === "eff").slice(0, 2).forEach(r => advice.push(`<b>${esc(shortOf(r.m))}</b> : ${Math.round(r.x)} min par semaine pour un résultat sous la barre. Ce n'est pas forcément un manque de travail : essaie le rappel actif (se tester sans le cours) plutôt que la relecture.`));
+  list.filter(r => quad(r) === "weak").slice(0, 2).forEach(r => advice.push(`<b>${esc(shortOf(r.m))}</b> : peu de révision et des résultats sous la barre. C'est là que quelques séances de plus devraient rapporter le plus.`));
+  list.filter(r => quad(r) === "marge").slice(0, 1).forEach(r => advice.push(`<b>${esc(shortOf(r.m))}</b> : de bons résultats avec peu de temps, le rythme actuel suffit.`));
+  el.innerHTML = `<div class="mx-wrap">
+    <svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Matrice effort et résultat">${s}</svg>
+    <div>
+      ${list.map(r => `<div class="mxrow"><span class="dot" style="--c:${colorOf(r.m)}"></span><div class="nm"><b>${esc(shortOf(r.m))}</b><small>${Math.round(r.x)} min par semaine, ${val(r)}, ${r.n} notes</small></div><span class="qtag q-${quad(r)}">${QN[quad(r)]}</span></div>`).join("")}
+      ${weak.length ? `<div class="sub" style="margin-top:6px">Pas encore assez de notes (moins de 3) : ${weak.map(r => `${esc(shortOf(r.m))} (${r.n})`).join(", ")}.</div>` : ""}
+      <div class="mxadvice">${advice.map(a => `<p>${a}</p>`).join("")}<p class="sub">La taille des bulles suit les coefficients. Les zones sont tracées par rapport à la médiane des matières (temps) et ${mxMode === "gap" ? "à la moyenne de la classe" : "à ta moyenne générale"} (résultat).</p></div>
+    </div></div>`;
+}
+$("#mxPeriod").addEventListener("click", e => { const b = e.target.closest("[data-d]"); if(!b) return; mxDays = +b.dataset.d; $$("#mxPeriod .cchip").forEach(x => x.classList.toggle("on", x === b)); renderMatrix(); });
+$("#mxMode").addEventListener("click", e => { const b = e.target.closest("[data-m]"); if(!b) return; mxMode = b.dataset.m; $$("#mxMode button").forEach(x => x.classList.toggle("on", x === b)); renderMatrix(); });
+
 /* ----- Pronote ----- */
+// Correspondance entre les intitulés de Pronote (ex. « NUMERIQUE SC.INFORM. ») et les matières du carnet.
+function matiereFromPronote(name){
+  const n = (name || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+  if(/math/.test(n)) return "Mathématiques";
+  if(/physique|chimie/.test(n)) return "Physique-Chimie";
+  if(/numerique|inform|nsi/.test(n)) return "Numérique & Sc. Info";
+  if(/scientifique/.test(n)) return "Enseign. scientifique";
+  if(/histoire|geograph/.test(n)) return "Histoire-Géographie";
+  if(/francais|lettres/.test(n)) return "Français";
+  if(/anglais/.test(n)) return "Anglais LV1";
+  if(/allemand/.test(n)) return "Allemand LV2";
+  if(/civique|emc/.test(n)) return "EMC";
+  return "Autre";
+}
+let pnHomework = [];
+const hwKey = h => String(h.id || `${h.subject}|${h.date}|${(h.description || "").slice(0, 40)}`);
+const hwAdded = h => S.sessions.some(s => s.pronoteId === hwKey(h));
+
+async function addHomework(h, quiet){
+  if(S.isParent){ toast("La vue parent est en lecture seule"); return false; }
+  const m = matiereFromPronote(h.subject), today = todayISO(), due = h.date ? h.date.slice(0, 10) : null;
+  let planned = due ? addDays(due, -1) : addDays(today, 1);   // à faire la veille de l'échéance
+  if(planned < today) planned = today;
+  const desc = (h.description || "").trim();
+  const obj = {matiere:m, sujet: desc.length > 90 ? desc.slice(0, 87) + "…" : desc, date:today, duree:0, difficulte:null, notes:desc,
+    revoirDate:planned, revu:false, planifiee:true, evalId:null, createdAt:Date.now(), source:"pronote", pronoteId:hwKey(h), dueDate:due};
+  try{
+    const r = await addDoc(colSessions, obj); S.sessions.push({id:r.id, ...obj});
+    if(!quiet){ renderAll(); toast(`Devoir ajouté pour le ${fmtDate(planned).toLowerCase()}`); }
+    return true;
+  }catch(err){ toast("Ajout impossible, vérifie ta connexion"); return false; }
+}
+function renderPronoteHw(error){
+  $("#pronoteHw").hidden = false;
+  $("#pnHwList").innerHTML = error ? `<div class="empty">${esc(error)}</div>` : pnHomework.length ? pnHomework.map((h,i) => {
+    const m = matiereFromPronote(h.subject), added = hwAdded(h);
+    return `<div class="item" style="margin-bottom:8px;align-items:flex-start">
+      <span class="dot" style="--c:${colorOf(m)};margin-top:6px"></span>
+      <div class="txt"><b>${esc(shortOf(m))}${h.done ? '<span class="tag">Fait dans Pronote</span>' : ""}</b>
+        <small style="display:block;white-space:normal">${h.date ? "Pour le " + fmtDate(h.date.slice(0, 10)) : "Sans date"}</small>
+        <div style="font-size:12.5px;margin-top:3px;white-space:pre-wrap">${esc(h.description)}</div></div>
+      <div class="acts">${added ? '<span class="when">Ajouté</span>' : h.done ? "" : `<button class="mini go" data-hw="${i}">Ajouter au planning</button>`}</div></div>`;
+  }).join("") : `<div class="empty">Aucun devoir dans les 30 prochains jours.</div>`;
+}
+$("#pnHwList").addEventListener("click", async e => {
+  const b = e.target.closest("[data-hw]"); if(!b) return;
+  await addHomework(pnHomework[+b.dataset.hw]); renderPronoteHw();
+});
+$("#pnAddAll").addEventListener("click", async () => {
+  const todo = pnHomework.filter(h => !h.done && !hwAdded(h));
+  if(!todo.length){ toast("Rien de nouveau à ajouter"); return; }
+  let n = 0; for(const h of todo){ if(await addHomework(h, true)) n++; }
+  renderAll(); renderPronoteHw();
+  if(n) toast(`${n} devoir${n > 1 ? "s ajoutés" : " ajouté"} au planning`);
+});
+
 $("#pnFetch").addEventListener("click", async () => {
   const url = S.settings.pronoteUrl;
   if(!url){ toast("Ajoute l'adresse de la fonction Pronote dans les paramètres"); return; }
@@ -1977,11 +2180,15 @@ $("#pnFetch").addEventListener("click", async () => {
     const res = await fetch(url, {method:"POST", headers:{"Content-Type":"application/json", "Authorization":`Bearer ${token}`}, body:JSON.stringify({username, password})});
     const data = await res.json().catch(() => ({}));
     if(!res.ok) throw new Error(data.error || "Récupération impossible");
+    pnHomework = (data.homework || []).slice().sort((a,b) => (a.date || "").localeCompare(b.date || ""));
+    renderPronoteHw(data.homeworkError);
     const grades = (data.grades || []).slice().sort((a,b) => (b.date||"").localeCompare(a.date||""));
-    $("#pronoteResult").innerHTML = grades.length ? grades.map(g => `<div class="grade"><div><b>${esc(g.subject)}</b><small>${g.date ? fmtDate(g.date.slice(0,10)) : ""}${g.coefficient ? `, coefficient ${esc(g.coefficient)}` : ""}${g.average ? `, moyenne de la classe ${esc(g.average)}` : ""}</small></div><span class="g">${esc(g.grade)} / ${esc(g.outOf)}</span></div>`).join("")
+    $("#pnGradesTitle").hidden = false;
+    if(!data.gradesError && grades.length){ saveGrades(grades).then(n => { if(n) { toast(`${n} nouvelle${n > 1 ? "s" : ""} note${n > 1 ? "s" : ""} enregistrée${n > 1 ? "s" : ""}`); renderMatrix(); } }); }
+    $("#pronoteResult").innerHTML = data.gradesError ? `<div class="empty">${esc(data.gradesError)}</div>` : grades.length ? grades.map(g => `<div class="grade"><div><b>${esc(g.subject)}</b><small>${g.date ? fmtDate(g.date.slice(0,10)) : ""}${g.coefficient ? `, coefficient ${esc(g.coefficient)}` : ""}${g.average ? `, moyenne de la classe ${esc(g.average)}` : ""}</small></div><span class="g">${esc(g.grade)} / ${esc(g.outOf)}</span></div>`).join("")
       : `<div class="empty">Aucune note trouvée.</div>`;
   }catch(e){ toast(e.message || "Récupération impossible"); }
-  finally{ $("#pnUser").value = ""; $("#pnPass").value = ""; btn.disabled = false; btn.textContent = "Récupérer mes notes"; }
+  finally{ $("#pnUser").value = ""; $("#pnPass").value = ""; btn.disabled = false; btn.textContent = "Récupérer mes devoirs et mes notes"; }
 });
 
 /* ================= Paramètres ================= */
@@ -1991,7 +2198,7 @@ $("#openSettings").addEventListener("click", () => {
   $("#setReportUrl").value = S.settings.reportUrl || "";
   $("#setPronoteUrl").value = S.settings.pronoteUrl || "";
   $("#secChecks").innerHTML = Object.entries(SECTIONS).map(([k,l]) => `<label class="check"><input type="checkbox" data-pref="${k}" ${secPrefs[k] ? "checked" : ""}> ${esc(l)}</label>`).join("");
-  renderCleanGroups(); renderSettingsGame();
+  renderCleanGroups(); renderSettingsGame(); renderGradesCount();
   openModal("settingsModal");
 });
 
@@ -2069,7 +2276,7 @@ $("#sendReportNow").addEventListener("click", async () => {
   finally{ btn.disabled = false; }
 });
 $("#exportBtn").addEventListener("click", () => {
-  const data = {exportedAt:new Date().toISOString(), sessions:S.sessions, evaluations:S.evals, settings:S.settings, academie:G};
+  const data = {exportedAt:new Date().toISOString(), sessions:S.sessions, evaluations:S.evals, notesPronote:S.grades, settings:S.settings, academie:G};
   const a = document.createElement("a");
   a.href = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], {type:"application/json"}));
   a.download = `sauvegarde-carnet-${todayISO()}.json`;
@@ -2138,6 +2345,7 @@ onAuthStateChanged(auth, async user => {
     const [ss, es, st] = await Promise.all([getDocs(colSessions), getDocs(colEvals), getDoc(settingsRef)]);
     S.sessions = ss.docs.map(d => ({id:d.id, ...d.data()}));
     S.evals = es.docs.map(d => ({id:d.id, ...d.data()}));
+    try{ S.grades = (await getDocs(colGrades)).docs.map(d => ({id:d.id, ...d.data()})); }catch(e){ S.grades = []; }
     if(st.exists()) S.settings = {...S.settings, ...st.data()};
   }catch(e){
     authMsg = "Impossible de lire les données. Vérifie les règles Firestore et ta connexion.";
