@@ -381,12 +381,14 @@ html[data-skin="marianne"]{color-scheme:light;--paper:#F7F8FC;--grid:#E3E7F3;--p
   .dash{grid-template-columns:330px minmax(0,1fr)}
   .village{grid-template-columns:minmax(0,1fr) 340px}
   .dash .col-right{grid-column:1/-1;overflow:visible}
-  .dash{overflow:auto}
-  .dash .col{overflow:visible}
+  .dash{overflow:auto;grid-auto-rows:max-content;align-content:start}
+  .dash .col{overflow:visible;min-height:auto}
+  .entry-foot{position:static}
   .sugs{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 @media (max-width:860px){
   #app{height:auto;min-height:100vh}
+  .dash{overflow:visible}
   .topbar{flex-wrap:wrap;height:auto;padding:10px 14px;gap:10px}
   .today{display:none}
   .view.on{display:flex;flex-direction:column}
@@ -707,7 +709,7 @@ html[data-skin="marianne"]{color-scheme:light;--paper:#F7F8FC;--grid:#E3E7F3;--p
         <p>Colle ici les adresses affichées par Google Cloud après le déploiement.</p>
         <label class="lbl" for="setReportUrl">Adresse de la fonction rapport</label>
         <input class="input" id="setReportUrl" placeholder="https://…">
-        <label class="lbl" for="setPronoteUrl">Adresse de la fonction Pronote</label>
+        <label class="lbl" for="setPronoteUrl">Adresse de la passerelle Pronote</label>
         <input class="input" id="setPronoteUrl" placeholder="https://…">
         <div class="btnrow"><button class="btn-line" id="saveUrls">Enregistrer les adresses</button></div>
       </div>
@@ -2169,12 +2171,22 @@ $("#pnAddAll").addEventListener("click", async () => {
   if(n) toast(`${n} devoir${n > 1 ? "s ajoutés" : " ajouté"} au planning`);
 });
 
+// Les hébergeurs gratuits s'endorment après 15 minutes : on réveille le service dès que l'élève commence à saisir.
+let pnWoken = false;
+function wakePronote(){
+  if(pnWoken || !S.settings.pronoteUrl) return;
+  pnWoken = true; fetch(S.settings.pronoteUrl, {mode:"no-cors"}).catch(() => {});
+}
+$("#pnUser").addEventListener("focus", wakePronote);
+$("#pnPass").addEventListener("focus", wakePronote);
+
 $("#pnFetch").addEventListener("click", async () => {
   const url = S.settings.pronoteUrl;
   if(!url){ toast("Ajoute l'adresse de la fonction Pronote dans les paramètres"); return; }
   const username = $("#pnUser").value.trim(), password = $("#pnPass").value;
   if(!username || !password){ toast("Saisis ton identifiant et ton mot de passe Pronote"); return; }
   const btn = $("#pnFetch"); btn.disabled = true; btn.textContent = "Connexion à Pronote…";
+  const slow = setTimeout(() => { btn.textContent = "Réveil du service, jusqu'à 1 minute…"; }, 6000);
   try{
     const token = await S.user.getIdToken();
     const res = await fetch(url, {method:"POST", headers:{"Content-Type":"application/json", "Authorization":`Bearer ${token}`}, body:JSON.stringify({username, password})});
@@ -2188,7 +2200,7 @@ $("#pnFetch").addEventListener("click", async () => {
     $("#pronoteResult").innerHTML = data.gradesError ? `<div class="empty">${esc(data.gradesError)}</div>` : grades.length ? grades.map(g => `<div class="grade"><div><b>${esc(g.subject)}</b><small>${g.date ? fmtDate(g.date.slice(0,10)) : ""}${g.coefficient ? `, coefficient ${esc(g.coefficient)}` : ""}${g.average ? `, moyenne de la classe ${esc(g.average)}` : ""}</small></div><span class="g">${esc(g.grade)} / ${esc(g.outOf)}</span></div>`).join("")
       : `<div class="empty">Aucune note trouvée.</div>`;
   }catch(e){ toast(e.message || "Récupération impossible"); }
-  finally{ $("#pnUser").value = ""; $("#pnPass").value = ""; btn.disabled = false; btn.textContent = "Récupérer mes devoirs et mes notes"; }
+  finally{ clearTimeout(slow); $("#pnUser").value = ""; $("#pnPass").value = ""; btn.disabled = false; btn.textContent = "Récupérer mes devoirs et mes notes"; }
 });
 
 /* ================= Paramètres ================= */
