@@ -381,14 +381,19 @@ html[data-skin="marianne"]{color-scheme:light;--paper:#F7F8FC;--grid:#E3E7F3;--p
   .dash{grid-template-columns:330px minmax(0,1fr)}
   .village{grid-template-columns:minmax(0,1fr) 340px}
   .dash .col-right{grid-column:1/-1;overflow:visible}
-  .dash{overflow:auto;grid-auto-rows:max-content;align-content:start}
-  .dash .col{overflow:visible;min-height:auto}
+  /* Safari : on évite toute hauteur imposée, c'est la page qui défile */
+  #app{height:auto;min-height:100vh}
+  main{flex:none}
+  .view,.view.on{height:auto}
+  .dash{overflow:visible;grid-auto-rows:auto;align-content:start;align-items:start}
+  .dash .col{overflow:visible;min-height:auto;min-width:0}
+  .dash .col-right{position:static;transform:none}
+  .village,.analyse{overflow:visible}
   .entry-foot{position:static}
   .sugs{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 @media (max-width:860px){
   #app{height:auto;min-height:100vh}
-  .dash{overflow:visible}
   .topbar{flex-wrap:wrap;height:auto;padding:10px 14px;gap:10px}
   .today{display:none}
   .view.on{display:flex;flex-direction:column}
