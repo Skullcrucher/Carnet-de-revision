@@ -376,6 +376,13 @@ html[data-skin="marianne"]{color-scheme:light;--paper:#F7F8FC;--grid:#E3E7F3;--p
 .qtag.q-marge{background:var(--blue-soft);color:var(--blue)}
 .mxadvice{font-size:12.5px;color:var(--ink-2);margin-top:10px;line-height:1.5}
 .mxadvice p{margin:0 0 7px}
+.corr-head{display:flex;align-items:center;gap:10px;margin-bottom:8px}.corr-head small{display:block;color:var(--ink-3);font-size:12.5px}
+.corr-list{max-height:430px;overflow:auto;padding-right:2px}
+.corr-row{width:100%;text-align:left;background:var(--panel);color:inherit;cursor:pointer}
+.corr-row.on{border-color:var(--blue);box-shadow:0 0 0 1px var(--blue)}
+.corr-sess{margin-top:8px;font-size:12.5px;border-top:1px solid var(--line)}
+.corr-sess div{display:grid;grid-template-columns:70px minmax(0,1fr) auto;gap:10px;padding:5px 0;border-bottom:1px solid var(--line)}
+.corr-sess span:nth-child(1){color:var(--ink-3)}
 /* ---------- Écrans plus étroits ---------- */
 @media (max-width:1280px){
   .dash{grid-template-columns:330px minmax(0,1fr)}
@@ -401,6 +408,9 @@ html[data-skin="marianne"]{color-scheme:light;--paper:#F7F8FC;--grid:#E3E7F3;--p
   .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
   .sugs,.split,.set-grid,.mx-wrap{grid-template-columns:1fr}
   .village{grid-template-columns:1fr}
+  .dash>*,.analyse>*,.panel{min-width:0;max-width:100%}
+  .filters{flex-wrap:wrap}.filters .input{min-width:0;max-width:100%}
+  .hist-wrap{overflow-x:auto}
   .vboard{min-width:0;max-width:none;width:100%}
   .analyse .span2{grid-column:auto}
 }
@@ -629,6 +639,12 @@ html[data-skin="marianne"]{color-scheme:light;--paper:#F7F8FC;--grid:#E3E7F3;--p
           <div class="seg" id="mxMode"><button class="on" data-m="gap">Écart à la classe</button><button data-m="avg">Note moyenne</button></div>
         </div>
         <div id="aMatrix"></div>
+      </div>
+
+      <div class="panel span2" data-sec="corr">
+        <div class="panel-h"><h2>Une note et les révisions d'avant</h2><span class="sub">Choisis une note pour voir ce qui a été révisé les jours précédents</span></div>
+        <div class="mxbar"><div class="chiprow" id="corrWin"><button class="cchip" data-w="7">7 jours avant</button><button class="cchip on" data-w="14">14 jours avant</button><button class="cchip" data-w="21">21 jours avant</button></div></div>
+        <div id="aCorr"></div>
       </div>
 
       <div class="panel" data-sec="bilan">
@@ -1893,7 +1909,7 @@ function lineChart(el, data){
 function mondayOf(iso){ const d = new Date(iso+"T00:00:00"); d.setDate(d.getDate() - ((d.getDay()||7) - 1)); return toISO(d); }
 function weeks(n){ const m0 = mondayOf(todayISO()); return Array.from({length:n}, (_,i) => addDays(m0, -(n-1-i)*7)); }
 
-const SECTIONS = {repartition:"Temps par matière", weekly:"Temps par semaine", weekday:"Jours de révision", difficulty:"Difficulté ressentie", history:"Historique", heat:"Constance sur l'année", radar:"Équilibre des matières", matrix:"Effort et résultats", bilan:"Bilan à partager", pronote:"Pronote : devoirs et notes"};
+const SECTIONS = {repartition:"Temps par matière", weekly:"Temps par semaine", weekday:"Jours de révision", difficulty:"Difficulté ressentie", history:"Historique", heat:"Constance sur l'année", radar:"Équilibre des matières", matrix:"Effort et résultats", corr:"Une note et les révisions d'avant", bilan:"Bilan à partager", pronote:"Pronote : devoirs et notes"};
 const PREF_KEY = "carnet-analyse-sections";
 let secPrefs = (() => { try{ return {...Object.fromEntries(Object.keys(SECTIONS).map(k => [k,true])), ...JSON.parse(localStorage.getItem(PREF_KEY)||"{}")}; }catch(e){ return Object.fromEntries(Object.keys(SECTIONS).map(k => [k,true])); } })();
 function applySecPrefs(){ $$("[data-sec]").forEach(el => el.hidden = !secPrefs[el.dataset.sec] || (!!el.dataset.feat && !(gameReady && featureOn(el.dataset.feat)))); }
@@ -1929,6 +1945,7 @@ function renderAnalyse(){
   renderHistory();
   if(gameReady){ if(featureOn("heat")) renderHeat(); if(featureOn("radar")) renderRadar(); }
   renderMatrix();
+  renderCorr();
   renderBilan();
   $("#pronoteForm").hidden = false;
 }
@@ -2119,6 +2136,81 @@ function renderMatrix(){
 $("#mxPeriod").addEventListener("click", e => { const b = e.target.closest("[data-d]"); if(!b) return; mxDays = +b.dataset.d; $$("#mxPeriod .cchip").forEach(x => x.classList.toggle("on", x === b)); renderMatrix(); });
 $("#mxMode").addEventListener("click", e => { const b = e.target.closest("[data-m]"); if(!b) return; mxMode = b.dataset.m; $$("#mxMode button").forEach(x => x.classList.toggle("on", x === b)); renderMatrix(); });
 
+/* ----- Une note et les révisions d'avant ----- */
+let corrId = null, corrWin = 14;
+const dayLabel = iso => new Date(iso + "T00:00:00").toLocaleDateString("fr-FR", {day:"numeric", month:"short"});
+function corrInfo(g){
+  const gv = gradeVals(g); if(!gv || !g.date) return null;
+  const from = addDays(g.date, -corrWin), to = addDays(g.date, -1);
+  const ss = done().filter(x => x.matiere === g.matiere && x.date >= from && x.date <= to);
+  const gap = gv.avg20 !== null ? gv.v20 - gv.avg20 : null;
+  return {g, gv, from, to, ss, min: sumMin(ss), gap, bad: gap !== null ? gap <= -1 : gv.v20 < 10};
+}
+function renderCorr(){
+  const el = $("#aCorr"); if(!el) return;
+  const infos = S.grades.map(corrInfo).filter(Boolean).sort((a, b) => b.g.date.localeCompare(a.g.date));
+  if(!infos.length){ el.innerHTML = `<div class="empty">Aucune note enregistrée. Récupère tes notes avec le bloc Pronote plus bas, elles apparaîtront ici.</div>`; return; }
+  let cur = infos.find(i => i.g.id === corrId || i.g.key === corrId);
+  if(!cur){ cur = infos.find(i => i.bad) || infos[0]; corrId = cur.g.id || cur.g.key; }
+  const all = done(), firstDate = all.map(x => x.date).sort()[0] || null, t = todayISO();
+  const subj = cur.g.matiere, col = colorOf(subj), N = corrWin;
+  // Graphique : une colonne par jour, de J-N à J-1, puis le jour de la note
+  const days = []; for(let i = -N; i <= 0; i++) days.push(addDays(cur.g.date, i));
+  const mine = days.map(d => sumMin(all.filter(x => x.matiere === subj && x.date === d)));
+  const others = days.map(d => sumMin(all.filter(x => x.matiere !== subj && x.date === d)));
+  const W = 640, H = 210, L = 38, R = 10, T = 22, B = 34, bw = (W - L - R) / days.length;
+  const ymax = Math.max(30, ...mine, ...others) * 1.15, sy = v => T + (1 - v / ymax) * (H - T - B);
+  let svg = `<rect x="${L}" y="${T}" width="${W - L - R}" height="${H - T - B}" style="fill:none;stroke:var(--line)"/>`;
+  for(let i = 0; i <= 3; i++){ const v = ymax * i / 3; svg += `<line x1="${L}" x2="${W - R}" y1="${sy(v).toFixed(1)}" y2="${sy(v).toFixed(1)}" style="stroke:var(--line)" stroke-dasharray="2 4"/><text class="svl" x="${L - 5}" y="${(sy(v) + 3.5).toFixed(1)}" text-anchor="end">${Math.round(v)}</text>`; }
+  const step = N <= 7 ? 1 : N <= 14 ? 2 : 3;
+  days.forEach((d, i) => {
+    const x = L + i * bw, last = i === days.length - 1;
+    if(others[i]) svg += `<rect x="${(x + bw * .12).toFixed(1)}" y="${sy(others[i]).toFixed(1)}" width="${(bw * .76).toFixed(1)}" height="${(H - B - sy(others[i])).toFixed(1)}" style="fill:var(--line)"><title>${dayLabel(d)} : ${others[i]} min dans les autres matières</title></rect>`;
+    if(mine[i]) svg += `<rect x="${(x + bw * .28).toFixed(1)}" y="${sy(mine[i]).toFixed(1)}" width="${(bw * .44).toFixed(1)}" height="${(H - B - sy(mine[i])).toFixed(1)}" rx="2" style="fill:${col}"><title>${dayLabel(d)} : ${mine[i]} min de ${esc(shortOf(subj))}</title></rect>`;
+    if((days.length - 1 - i) % step === 0 && !last) svg += `<text class="svl" x="${(x + bw / 2).toFixed(1)}" y="${H - B + 14}" text-anchor="middle">${dayLabel(d)}</text>`;
+  });
+  const gx = L + (days.length - 1) * bw + bw / 2;
+  svg += `<line x1="${gx.toFixed(1)}" x2="${gx.toFixed(1)}" y1="${T - 6}" y2="${H - B}" style="stroke:var(--red)" stroke-width="2"/>
+    <text class="svt" x="${Math.min(gx, W - 44).toFixed(1)}" y="${T - 9}" text-anchor="middle" style="font-weight:700;fill:var(--red)">Note du ${dayLabel(cur.g.date)}</text>
+    <text class="svl" x="${Math.min(gx, W - 20).toFixed(1)}" y="${H - B + 14}" text-anchor="middle">${dayLabel(cur.g.date)}</text>
+    <text class="svl" x="${(L + W - R) / 2}" y="${H - 6}" text-anchor="middle">Minutes révisées par jour (couleur : ${esc(shortOf(subj))}, gris : autres matières)</text>`;
+  // Lecture
+  const sess = cur.ss.slice().sort((a, b) => a.date.localeCompare(b.date));
+  const last3 = sumMin(sess.filter(x => x.date >= addDays(cur.g.date, -3)));
+  const lastS = sess.length ? daysBetween(sess[sess.length - 1].date, cur.g.date) : null;
+  let base = null;
+  if(firstDate){ const span = daysBetween(firstDate, t) + 1; if(span >= 28) base = sumMin(all.filter(x => x.matiere === subj)) / span * N; }
+  const before = firstDate && addDays(cur.g.date, -1) < firstDate;
+  const partial = firstDate && cur.from < firstDate && !before;
+  let read;
+  if(before) read = `Le carnet ne contenait pas encore de séances à cette date (première séance le ${dayLabel(firstDate)}) : on ne peut pas relier cette note à des révisions.`;
+  else if(!sess.length) read = `Aucune séance de ${esc(shortOf(subj))} enregistrée dans les ${N} jours avant cette note.${partial ? " Le carnet ne couvre qu'une partie de cette période." : ""}`;
+  else read = `<b>${fmtMin(cur.min)}</b> de ${esc(shortOf(subj))} en ${sess.length} séance${sess.length > 1 ? "s" : ""} sur les ${N} jours avant la note${lastS !== null ? `, dont ${fmtMin(last3)} dans les 3 derniers jours. Dernière séance ${lastS === 1 ? "la veille" : `${lastS} jours avant`}` : ""}.${base !== null ? ` D'habitude : environ ${fmtMin(Math.round(base))} sur ${N} jours, soit ${cur.min < base * .7 ? "moins que d'habitude" : cur.min > base * 1.3 ? "plus que d'habitude" : "un rythme habituel"}.` : ""}${partial ? " Le carnet ne couvre qu'une partie de cette période." : ""}`;
+  const gradeTxt = `${esc(cur.g.grade)} / ${esc(cur.g.outOf)}${cur.gap !== null ? `, ${fmtSigned(cur.gap)} point${Math.abs(cur.gap) >= 2 ? "s" : ""} par rapport à la classe` : ""}`;
+  const table = `<div class="corr-list">${infos.slice(0, 40).map(i => {
+    const id = i.g.id || i.g.key, on = i === cur;
+    return `<button class="mxrow corr-row${on ? " on" : ""}" data-id="${esc(id)}"><span class="dot" style="--c:${colorOf(i.g.matiere)}"></span><div class="nm"><b>${esc(shortOf(i.g.matiere))}, ${esc(i.g.grade)} / ${esc(i.g.outOf)}</b><small>${dayLabel(i.g.date)}${i.gap !== null ? `, ${fmtSigned(i.gap)} vs classe` : ""}, ${i.min ? fmtMin(i.min) : "aucune"} révisée${i.min ? "s" : ""} avant</small></div>${i.bad ? `<span class="qtag q-weak">À regarder</span>` : ""}</button>`;
+  }).join("")}</div>`;
+  // Tendance globale (indicatif)
+  let trend = "";
+  const usable = infos.filter(i => !(firstDate && addDays(i.g.date, -1) < firstDate));
+  if(usable.length >= 8){
+    const ms = usable.map(i => i.min).sort((a, b) => a - b), med = ms[Math.floor(ms.length / 2)];
+    const lo = usable.filter(i => i.min < med), hi = usable.filter(i => i.min >= med);
+    const mean = l => l.reduce((a, i) => a + (i.gap !== null ? i.gap : i.gv.v20 - 10), 0) / l.length;
+    if(lo.length >= 3 && hi.length >= 3) trend = `<p class="sub" style="margin-top:10px">Sur l'ensemble des notes : ${hi.length} notes précédées d'au moins ${fmtMin(med)} de révision ont un écart moyen de ${fmtSigned(mean(hi))} point${Math.abs(mean(hi)) >= 2 ? "s" : ""}, contre ${fmtSigned(mean(lo))} pour les ${lo.length} autres. Indicatif : une matière difficile fait aussi réviser plus.</p>`;
+  }
+  el.innerHTML = `<div class="mx-wrap"><div>
+      <div class="corr-head"><span class="dot" style="--c:${col}"></span><div><b>${esc(shortOf(subj))}, ${gradeTxt}</b><small>${fmtDate(cur.g.date, true)}</small></div></div>
+      <svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Révisions des jours précédant la note">${svg}</svg>
+      <p class="mxadvice" style="margin-top:8px">${read}</p>
+      ${sess.length ? `<div class="corr-sess">${sess.slice().reverse().map(x => `<div><span>${dayLabel(x.date)}</span><span>${esc(x.sujet || "Sans chapitre")}</span><span>${fmtMin(x.duree || 0)}${x.difficulte ? `, difficulté ${x.difficulte} / 5` : ""}</span></div>`).join("")}</div>` : ""}
+      ${trend}
+    </div><div>${table}</div></div>`;
+}
+$("#corrWin").addEventListener("click", e => { const b = e.target.closest("[data-w]"); if(!b) return; corrWin = +b.dataset.w; $$("#corrWin .cchip").forEach(x => x.classList.toggle("on", x === b)); renderCorr(); });
+$("#aCorr").addEventListener("click", e => { const b = e.target.closest("[data-id]"); if(!b) return; corrId = b.dataset.id; renderCorr(); });
+
 /* ----- Pronote ----- */
 // Correspondance entre les intitulés de Pronote (ex. « NUMERIQUE SC.INFORM. ») et les matières du carnet.
 function matiereFromPronote(name){
@@ -2201,7 +2293,7 @@ $("#pnFetch").addEventListener("click", async () => {
     renderPronoteHw(data.homeworkError);
     const grades = (data.grades || []).slice().sort((a,b) => (b.date||"").localeCompare(a.date||""));
     $("#pnGradesTitle").hidden = false;
-    if(!data.gradesError && grades.length){ saveGrades(grades).then(n => { if(n) { toast(`${n} nouvelle${n > 1 ? "s" : ""} note${n > 1 ? "s" : ""} enregistrée${n > 1 ? "s" : ""}`); renderMatrix(); } }); }
+    if(!data.gradesError && grades.length){ saveGrades(grades).then(n => { if(n) { toast(`${n} nouvelle${n > 1 ? "s" : ""} note${n > 1 ? "s" : ""} enregistrée${n > 1 ? "s" : ""}`); renderMatrix(); renderCorr(); } }); }
     $("#pronoteResult").innerHTML = data.gradesError ? `<div class="empty">${esc(data.gradesError)}</div>` : grades.length ? grades.map(g => `<div class="grade"><div><b>${esc(g.subject)}</b><small>${g.date ? fmtDate(g.date.slice(0,10)) : ""}${g.coefficient ? `, coefficient ${esc(g.coefficient)}` : ""}${g.average ? `, moyenne de la classe ${esc(g.average)}` : ""}</small></div><span class="g">${esc(g.grade)} / ${esc(g.outOf)}</span></div>`).join("")
       : `<div class="empty">Aucune note trouvée.</div>`;
   }catch(e){ toast(e.message || "Récupération impossible"); }
