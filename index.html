@@ -383,6 +383,9 @@ html[data-skin="marianne"]{color-scheme:light;--paper:#F7F8FC;--grid:#E3E7F3;--p
 .corr-sess{margin-top:8px;font-size:12.5px;border-top:1px solid var(--line)}
 .corr-sess div{display:grid;grid-template-columns:70px minmax(0,1fr) auto;gap:10px;padding:5px 0;border-bottom:1px solid var(--line)}
 .corr-sess span:nth-child(1){color:var(--ink-3)}
+.legend-row{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:12px;color:var(--ink-2);margin-top:6px}
+.legend-row span{display:inline-flex;align-items:center;gap:6px}.legend-row i{display:inline-block;width:14px;height:4px;border-radius:2px}
+.legend-row i.lg-dot{width:10px;height:10px;border-radius:50%}.legend-row i.lg-dia{width:8px;height:8px;border-radius:0;transform:rotate(45deg);border:1.5px solid var(--ink-3);background:var(--panel)}
 /* ---------- Écrans plus étroits ---------- */
 @media (max-width:1280px){
   .dash{grid-template-columns:330px minmax(0,1fr)}
@@ -647,6 +650,15 @@ html[data-skin="marianne"]{color-scheme:light;--paper:#F7F8FC;--grid:#E3E7F3;--p
         <div id="aCorr"></div>
       </div>
 
+      <div class="panel span2" data-sec="trend">
+        <div class="panel-h"><h2>Notes et temps de révision par matière</h2><span class="sub">Courbe : heures révisées sur 7 jours glissants. Points : notes sur 20</span></div>
+        <div class="mxbar">
+          <div class="chiprow" id="trSubj"></div>
+          <div class="chiprow" id="trPeriod"><button class="cchip" data-d="45">45 jours</button><button class="cchip on" data-d="90">90 jours</button><button class="cchip" data-d="0">Depuis le début</button></div>
+        </div>
+        <div id="aTrend"></div>
+      </div>
+
       <div class="panel" data-sec="bilan">
         <div class="panel-h"><h2>Bilan à partager</h2></div>
         <div class="chiprow" id="bilanPeriod">
@@ -753,6 +765,7 @@ html[data-skin="marianne"]{color-scheme:light;--paper:#F7F8FC;--grid:#E3E7F3;--p
 
         <h3>Notes Pronote enregistrées</h3>
         <p id="gradesCount"></p>
+        <button class="btn-line" id="dupGradesBtn" hidden>Supprimer les doublons de notes</button>
         <button class="btn-danger" id="delGradesBtn">Supprimer les notes enregistrées</button>
 
         <h3>Nettoyer les données de test</h3>
@@ -1909,7 +1922,7 @@ function lineChart(el, data){
 function mondayOf(iso){ const d = new Date(iso+"T00:00:00"); d.setDate(d.getDate() - ((d.getDay()||7) - 1)); return toISO(d); }
 function weeks(n){ const m0 = mondayOf(todayISO()); return Array.from({length:n}, (_,i) => addDays(m0, -(n-1-i)*7)); }
 
-const SECTIONS = {repartition:"Temps par matière", weekly:"Temps par semaine", weekday:"Jours de révision", difficulty:"Difficulté ressentie", history:"Historique", heat:"Constance sur l'année", radar:"Équilibre des matières", matrix:"Effort et résultats", corr:"Une note et les révisions d'avant", bilan:"Bilan à partager", pronote:"Pronote : devoirs et notes"};
+const SECTIONS = {repartition:"Temps par matière", weekly:"Temps par semaine", weekday:"Jours de révision", difficulty:"Difficulté ressentie", history:"Historique", heat:"Constance sur l'année", radar:"Équilibre des matières", matrix:"Effort et résultats", corr:"Une note et les révisions d'avant", trend:"Notes et temps de révision par matière", bilan:"Bilan à partager", pronote:"Pronote : devoirs et notes"};
 const PREF_KEY = "carnet-analyse-sections";
 let secPrefs = (() => { try{ return {...Object.fromEntries(Object.keys(SECTIONS).map(k => [k,true])), ...JSON.parse(localStorage.getItem(PREF_KEY)||"{}")}; }catch(e){ return Object.fromEntries(Object.keys(SECTIONS).map(k => [k,true])); } })();
 function applySecPrefs(){ $$("[data-sec]").forEach(el => el.hidden = !secPrefs[el.dataset.sec] || (!!el.dataset.feat && !(gameReady && featureOn(el.dataset.feat)))); }
@@ -1946,6 +1959,7 @@ function renderAnalyse(){
   if(gameReady){ if(featureOn("heat")) renderHeat(); if(featureOn("radar")) renderRadar(); }
   renderMatrix();
   renderCorr();
+  renderTrend();
   renderBilan();
   $("#pronoteForm").hidden = false;
 }
@@ -2033,29 +2047,58 @@ function gradeVals(g){
 }
 const gradeSig = g => `${(g.date || "").slice(0, 10)}|${g.subject}|${g.grade}|${g.outOf}|${g.coefficient || ""}`;
 const gradeKey = g => g.id ? `p${g.id}` : gradeSig(g);
-async function saveGrades(list){
+const hashStr = str => { let h = 5381; for(let i = 0; i < str.length; i++) h = ((h << 5) + h + str.charCodeAt(i)) >>> 0; return h.toString(36); };
+// Identifiant fixe : la même note donne toujours le même document, même si on enregistre deux fois ou depuis deux appareils.
+const gradeDocId = g => g.id ? `p_${String(g.id).replace(/[^A-Za-z0-9_-]/g, "_")}` : `s_${hashStr(gradeSig(g))}`;
+let savingGrades = Promise.resolve(0);
+function saveGrades(list){ savingGrades = savingGrades.then(() => saveGradesNow(list), () => saveGradesNow(list)); return savingGrades; }   // une seule sauvegarde à la fois
+async function saveGradesNow(list){
   if(S.isParent) return 0;
   const have = new Set(); S.grades.forEach(g => { have.add(g.key); have.add(gradeSig(g)); });
   let n = 0;
   for(const g of list){
-    const key = gradeKey(g); if(have.has(key) || have.has(gradeSig(g))) continue; have.add(key); have.add(gradeSig(g));
+    const key = gradeKey(g), sig = gradeSig(g);
+    if(have.has(key) || have.has(sig)) continue;
+    have.add(key); have.add(sig);
     const obj = {key, pronoteId:g.id || null, matiere:matiereFromPronote(g.subject), subject:g.subject || "", grade:String(g.grade ?? ""), outOf:String(g.outOf ?? ""),
       average:g.average ?? null, coefficient:g.coefficient ?? null, date:(g.date || "").slice(0, 10) || null, period:g.period || "", createdAt:Date.now()};
-    try{ const r = await addDoc(colGrades, obj); S.grades.push({id:r.id, ...obj}); n++; }catch(e){}
+    const id = gradeDocId(g);
+    try{
+      if(S.grades.some(x => x.id === id)) continue;
+      await setDoc(doc(db, "grades", id), obj); S.grades.push({id, ...obj}); n++;
+    }catch(e){}
   }
   return n;
+}
+// Doublons déjà présents (anciennes sauvegardes) : repérés, jamais supprimés sans ton accord.
+function splitGradeDups(list){
+  const seen = new Set(), keep = [], dups = [];
+  list.slice().sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0)).forEach(g => {
+    const k1 = g.key || gradeSig(g), k2 = gradeSig(g);
+    if(seen.has(k1) || seen.has(k2)) dups.push(g); else { seen.add(k1); seen.add(k2); keep.push(g); }
+  });
+  return {keep, dups};
 }
 function renderGradesCount(){
   const n = S.grades.length;
   $("#gradesCount").textContent = n ? `${n} note${n > 1 ? "s" : ""} enregistrée${n > 1 ? "s" : ""}. Les identifiants Pronote ne sont jamais enregistrés.` : "Aucune note enregistrée. Les identifiants Pronote ne sont jamais enregistrés.";
   $("#delGradesBtn").disabled = !n || S.isParent;
+  const d = S.gradeDups ? S.gradeDups.length : 0;
+  $("#dupGradesBtn").hidden = !d || S.isParent;
+  $("#dupGradesBtn").textContent = `Supprimer ${d} doublon${d > 1 ? "s" : ""} de notes`;
 }
+$("#dupGradesBtn").addEventListener("click", async () => {
+  const d = S.gradeDups || []; if(!d.length) return;
+  if(!confirm(`${d.length} note${d.length > 1 ? "s sont des copies" : " est une copie"} exacte${d.length > 1 ? "s" : ""} d'une autre. Les supprimer ? Les originales sont conservées.`)) return;
+  try{ await Promise.all(d.map(g => deleteDoc(doc(db, "grades", g.id)))); S.gradeDups = []; renderGradesCount(); toast("Doublons supprimés"); }
+  catch(e){ toast("Suppression interrompue, réessaie"); }
+});
 $("#delGradesBtn").addEventListener("click", async () => {
   if(!S.grades.length) return;
   if(!confirm(`Supprimer définitivement les ${S.grades.length} notes enregistrées ? Tu pourras les récupérer à nouveau depuis Pronote.`)) return;
   try{
-    await Promise.all(S.grades.map(g => deleteDoc(doc(db, "grades", g.id))));
-    S.grades = []; renderGradesCount(); renderAll(); toast("Notes supprimées");
+    await Promise.all([...S.grades, ...(S.gradeDups || [])].map(g => deleteDoc(doc(db, "grades", g.id))));
+    S.grades = []; S.gradeDups = []; renderGradesCount(); renderAll(); toast("Notes supprimées");
   }catch(e){ toast("Suppression interrompue, réessaie"); }
 });
 
@@ -2211,6 +2254,55 @@ function renderCorr(){
 $("#corrWin").addEventListener("click", e => { const b = e.target.closest("[data-w]"); if(!b) return; corrWin = +b.dataset.w; $$("#corrWin .cchip").forEach(x => x.classList.toggle("on", x === b)); renderCorr(); });
 $("#aCorr").addEventListener("click", e => { const b = e.target.closest("[data-id]"); if(!b) return; corrId = b.dataset.id; renderCorr(); });
 
+/* ----- Notes d'une matière et courbe de révision ----- */
+let trSubj = null, trDays = 90;
+function renderTrend(){
+  const el = $("#aTrend"); if(!el) return;
+  const subjects = MATIERES.filter(m => m !== "Autre");
+  const nGr = m => S.grades.filter(g => g.matiere === m && g.date && gradeVals(g)).length;
+  if(!trSubj || !subjects.includes(trSubj)) trSubj = subjects.slice().sort((a, b) => nGr(b) - nGr(a))[0];
+  $("#trSubj").innerHTML = subjects.map(m => `<button class="cchip${m === trSubj ? " on" : ""}" data-m="${esc(m)}">${esc(shortOf(m))}${nGr(m) ? ` (${nGr(m)})` : ""}</button>`).join("");
+  const grades = S.grades.filter(g => g.matiere === trSubj && g.date && gradeVals(g)).sort((a, b) => a.date.localeCompare(b.date));
+  if(!grades.length){ el.innerHTML = `<div class="empty">Aucune note de ${esc(shortOf(trSubj))} enregistrée. Choisis une matière avec des notes (le nombre est entre parenthèses) ou récupère tes notes avec le bloc Pronote.</div>`; return; }
+  const all = done().filter(x => x.matiere === trSubj), t = todayISO();
+  const firstAny = [grades[0].date, ...all.map(x => x.date)].sort()[0];
+  const start = trDays ? addDays(t, -(trDays - 1)) : firstAny, from = start < firstAny && !trDays ? firstAny : start;
+  const n = daysBetween(from, t) + 1; if(n < 2){ el.innerHTML = ""; return; }
+  const perDay = new Array(n).fill(0); all.forEach(x => { const i = daysBetween(from, x.date); if(i >= 0 && i < n) perDay[i] += x.duree || 0; });
+  // somme glissante sur 7 jours, en incluant les 6 jours avant le début de la période
+  const roll = perDay.map((_, i) => { let tot = 0; for(let k = i - 6; k <= i; k++){ if(k >= 0) tot += perDay[k]; else tot += sumMin(all.filter(x => x.date === addDays(from, k))); } return tot / 60; });
+  const W = 720, H = 300, L = 46, R = 40, T = 18, B = 38;
+  const hmax = Math.max(2, ...roll) * 1.15, sx = i => L + i / (n - 1) * (W - L - R), syH = v => T + (1 - v / hmax) * (H - T - B), syG = v => T + (1 - v / 20) * (H - T - B);
+  let svg = `<rect x="${L}" y="${T}" width="${W - L - R}" height="${H - T - B}" style="fill:none;stroke:var(--line)"/>`;
+  for(let i = 0; i <= 4; i++){
+    const g = i * 5, h = hmax * i / 4;
+    svg += `<line x1="${L}" x2="${W - R}" y1="${syG(g).toFixed(1)}" y2="${syG(g).toFixed(1)}" style="stroke:var(--line)" stroke-dasharray="2 4"/>
+      <text class="svl" x="${W - R + 6}" y="${(syG(g) + 3.5).toFixed(1)}">${g}</text>
+      <text class="svl" x="${L - 6}" y="${(syG(g) + 3.5).toFixed(1)}" text-anchor="end">${(h).toFixed(h < 10 ? 1 : 0).replace(".", ",")} h</text>`;
+  }
+  const ticks = Math.min(6, n); for(let k = 0; k < ticks; k++){ const i = Math.round(k * (n - 1) / (ticks - 1 || 1)); svg += `<text class="svl" x="${sx(i).toFixed(1)}" y="${H - B + 15}" text-anchor="${k === 0 ? "start" : k === ticks - 1 ? "end" : "middle"}">${dayLabel(addDays(from, i))}</text>`; }
+  const col = colorOf(trSubj);
+  const line = roll.map((v, i) => `${i ? "L" : "M"}${sx(i).toFixed(1)} ${syH(v).toFixed(1)}`).join(" ");
+  svg += `<path d="${line} L${sx(n - 1).toFixed(1)} ${H - B} L${L} ${H - B} Z" style="fill:${col};fill-opacity:.16;pointer-events:none"/><path d="${line}" style="fill:none;stroke:${col};stroke-width:2.5;stroke-linejoin:round;pointer-events:none"/>`;
+  const pts = grades.filter(g => g.date >= from && g.date <= t).map(g => { const v = gradeVals(g), i = daysBetween(from, g.date); const gap = v.avg20 !== null ? v.v20 - v.avg20 : null; return {g, v, i, gap, bad: gap !== null ? gap <= -1 : v.v20 < 10}; });
+  if(pts.length > 1) svg += `<path d="${pts.map((p, k) => `${k ? "L" : "M"}${sx(p.i).toFixed(1)} ${syG(p.v.v20).toFixed(1)}`).join(" ")}" style="fill:none;stroke:var(--ink-3);pointer-events:none" stroke-width="1.2" stroke-dasharray="4 4"/>`;
+  pts.forEach(p => {
+    const x = sx(p.i).toFixed(1), y = syG(p.v.v20).toFixed(1), c = p.bad ? "var(--red)" : "var(--green)";
+    if(p.v.avg20 !== null) svg += `<line x1="${x}" x2="${x}" y1="${y}" y2="${syG(p.v.avg20).toFixed(1)}" style="stroke:${c}" stroke-width="1.5" opacity=".6"/><rect x="${(x - 4)}" y="${(syG(p.v.avg20) - 4).toFixed(1)}" width="8" height="8" transform="rotate(45 ${x} ${syG(p.v.avg20).toFixed(1)})" style="fill:var(--panel);stroke:var(--ink-3)" stroke-width="1.5"/>`;
+    svg += `<g class="trdot" data-id="${esc(p.g.id || p.g.key)}" style="cursor:pointer"><circle cx="${x}" cy="${y}" r="7" style="fill:${c};stroke:var(--panel)" stroke-width="2"/>
+      <text class="svt" x="${x}" y="${(+y - 12).toFixed(1)}" text-anchor="middle" style="pointer-events:none;font-weight:700;fill:var(--ink);paint-order:stroke;stroke:var(--panel);stroke-width:4px;stroke-linejoin:round">${p.v.v20.toFixed(1).replace(".", ",").replace(",0", "")}</text>
+      <title>${dayLabel(p.g.date)} : ${esc(p.g.grade)} / ${esc(p.g.outOf)}${p.gap !== null ? `, ${fmtSigned(p.gap)} point(s) par rapport à la classe` : ""}. Cliquer pour voir les révisions d'avant.</title></g>`;
+  });
+  const bad = pts.filter(p => p.bad);
+  const sumH = sumMin(all.filter(x => x.date >= from && x.date <= t)) / 60;
+  el.innerHTML = (`<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Notes et temps de révision de ${esc(shortOf(trSubj))}">${svg}</svg>
+    <div class="legend-row"><span><i style="background:${col}"></i>Heures révisées sur 7 jours (échelle de gauche)</span><span><i class="lg-dot" style="background:var(--green)"></i>Note correcte</span><span><i class="lg-dot" style="background:var(--red)"></i>Note à regarder</span><span><i class="lg-dia"></i>Moyenne de la classe (échelle de droite, sur 20)</span></div>
+    <p class="mxadvice" style="margin-top:8px">${pts.length ? `${pts.length} note${pts.length > 1 ? "s" : ""} sur la période, ${fmtMin(Math.round(sumH * 60))} de révision au total.${bad.length ? ` Notes à regarder : ${bad.map(p => dayLabel(p.g.date)).join(", ")}. Clique sur un point pour voir les séances qui l'ont précédé.` : " Aucune note sous la moyenne de la classe."}` : `Aucune note de ${esc(shortOf(trSubj))} sur cette période.`}</p>`).replace(/\.\./g, ".");
+}
+$("#trSubj").addEventListener("click", e => { const b = e.target.closest("[data-m]"); if(!b) return; trSubj = b.dataset.m; renderTrend(); });
+$("#trPeriod").addEventListener("click", e => { const b = e.target.closest("[data-d]"); if(!b) return; trDays = +b.dataset.d; $$("#trPeriod .cchip").forEach(x => x.classList.toggle("on", x === b)); renderTrend(); });
+$("#aTrend").addEventListener("click", e => { const d = e.target.closest("[data-id]"); if(!d) return; corrId = d.dataset.id; renderCorr(); $("#aCorr").scrollIntoView({behavior:"smooth", block:"center"}); });
+
 /* ----- Pronote ----- */
 // Correspondance entre les intitulés de Pronote (ex. « NUMERIQUE SC.INFORM. ») et les matières du carnet.
 function matiereFromPronote(name){
@@ -2293,7 +2385,7 @@ $("#pnFetch").addEventListener("click", async () => {
     renderPronoteHw(data.homeworkError);
     const grades = (data.grades || []).slice().sort((a,b) => (b.date||"").localeCompare(a.date||""));
     $("#pnGradesTitle").hidden = false;
-    if(!data.gradesError && grades.length){ saveGrades(grades).then(n => { if(n) { toast(`${n} nouvelle${n > 1 ? "s" : ""} note${n > 1 ? "s" : ""} enregistrée${n > 1 ? "s" : ""}`); renderMatrix(); renderCorr(); } }); }
+    if(!data.gradesError && grades.length){ saveGrades(grades).then(n => { if(n) { toast(`${n} nouvelle${n > 1 ? "s" : ""} note${n > 1 ? "s" : ""} enregistrée${n > 1 ? "s" : ""}`); renderMatrix(); renderCorr(); renderTrend(); } }); }
     $("#pronoteResult").innerHTML = data.gradesError ? `<div class="empty">${esc(data.gradesError)}</div>` : grades.length ? grades.map(g => `<div class="grade"><div><b>${esc(g.subject)}</b><small>${g.date ? fmtDate(g.date.slice(0,10)) : ""}${g.coefficient ? `, coefficient ${esc(g.coefficient)}` : ""}${g.average ? `, moyenne de la classe ${esc(g.average)}` : ""}</small></div><span class="g">${esc(g.grade)} / ${esc(g.outOf)}</span></div>`).join("")
       : `<div class="empty">Aucune note trouvée.</div>`;
   }catch(e){ toast(e.message || "Récupération impossible"); }
@@ -2454,7 +2546,7 @@ onAuthStateChanged(auth, async user => {
     const [ss, es, st] = await Promise.all([getDocs(colSessions), getDocs(colEvals), getDoc(settingsRef)]);
     S.sessions = ss.docs.map(d => ({id:d.id, ...d.data()}));
     S.evals = es.docs.map(d => ({id:d.id, ...d.data()}));
-    try{ S.grades = (await getDocs(colGrades)).docs.map(d => ({id:d.id, ...d.data()})); }catch(e){ S.grades = []; }
+    try{ const r = splitGradeDups((await getDocs(colGrades)).docs.map(d => ({id:d.id, ...d.data()}))); S.grades = r.keep; S.gradeDups = r.dups; }catch(e){ S.grades = []; S.gradeDups = []; }
     if(st.exists()) S.settings = {...S.settings, ...st.data()};
   }catch(e){
     authMsg = "Impossible de lire les données. Vérifie les règles Firestore et ta connexion.";
