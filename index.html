@@ -2082,6 +2082,7 @@ function splitGradeDups(list){
 function renderGradesCount(){
   const n = S.grades.length;
   $("#gradesCount").textContent = n ? `${n} note${n > 1 ? "s" : ""} enregistrée${n > 1 ? "s" : ""}. Les identifiants Pronote ne sont jamais enregistrés.` : "Aucune note enregistrée. Les identifiants Pronote ne sont jamais enregistrés.";
+  $("#gradesCount").textContent += " " + (n ? gradeDiag() : "");
   $("#delGradesBtn").disabled = !n || S.isParent;
   const d = S.gradeDups ? S.gradeDups.length : 0;
   $("#dupGradesBtn").hidden = !d || S.isParent;
@@ -2124,6 +2125,7 @@ function renderMatrix(){
   const rows = matrixRows();
   const plot = rows.filter(r => r.n >= 3 && r.y !== null), weak = rows.filter(r => r.n > 0 && r.n < 3);
   if(!S.grades.length){ el.innerHTML = `<div class="empty">Aucune note enregistrée. Récupère tes notes avec le bloc Pronote plus bas : elles sont ensuite conservées, sans les identifiants.</div>`; return; }
+  if(!S.grades.some(g => g.date && gradeVals(g) && g.matiere !== "Autre")){ el.innerHTML = `<div class="empty">Les notes enregistrées ne sont pas utilisables ici.<br><small>${esc(gradeDiag())}</small></div>`; return; }
   if(plot.length < 3){
     el.innerHTML = `<div class="empty">Il faut au moins 3 matières avec 3 notes chacune sur la période pour tracer la matrice${mxMode === "gap" ? " (l'écart à la classe demande aussi la moyenne de la classe)" : ""}. Pour l'instant : ${plot.length} matière${plot.length > 1 ? "s" : ""}. Essaie une période plus longue.</div>`;
     return;
@@ -2254,6 +2256,15 @@ function renderCorr(){
 $("#corrWin").addEventListener("click", e => { const b = e.target.closest("[data-w]"); if(!b) return; corrWin = +b.dataset.w; $$("#corrWin .cchip").forEach(x => x.classList.toggle("on", x === b)); renderCorr(); });
 $("#aCorr").addEventListener("click", e => { const b = e.target.closest("[data-id]"); if(!b) return; corrId = b.dataset.id; renderCorr(); });
 
+function gradeDiag(){
+  const tot = S.grades.length; if(!tot) return "Aucune note enregistrée dans la base.";
+  const num = S.grades.filter(g => gradeVals(g)), by = {};
+  num.forEach(g => { by[g.matiere] = (by[g.matiere] || 0) + 1; });
+  const dates = num.map(g => g.date).filter(Boolean).sort();
+  const autre = S.grades.filter(g => g.matiere === "Autre").map(g => g.subject).filter((v, i, a) => a.indexOf(v) === i);
+  return `${tot} note${tot > 1 ? "s" : ""} en base, dont ${num.length} chiffrée${num.length > 1 ? "s" : ""}${dates.length ? `, du ${dayLabel(dates[0])} au ${dayLabel(dates[dates.length - 1])}` : ""}. Par matière : ${Object.entries(by).map(([m, n]) => `${shortOf(m)} ${n}`).join(", ") || "aucune"}.${autre.length ? ` Non reconnues (classées « Autre ») : ${autre.join(", ")}.` : ""}`.replace(/\.\./g, ".");
+}
+
 /* ----- Notes d'une matière et courbe de révision ----- */
 let trSubj = null, trDays = 90;
 function renderTrend(){
@@ -2263,7 +2274,7 @@ function renderTrend(){
   if(!trSubj || !subjects.includes(trSubj)) trSubj = subjects.slice().sort((a, b) => nGr(b) - nGr(a))[0];
   $("#trSubj").innerHTML = subjects.map(m => `<button class="cchip${m === trSubj ? " on" : ""}" data-m="${esc(m)}">${esc(shortOf(m))}${nGr(m) ? ` (${nGr(m)})` : ""}</button>`).join("");
   const grades = S.grades.filter(g => g.matiere === trSubj && g.date && gradeVals(g)).sort((a, b) => a.date.localeCompare(b.date));
-  if(!grades.length){ el.innerHTML = `<div class="empty">Aucune note de ${esc(shortOf(trSubj))} enregistrée. Choisis une matière avec des notes (le nombre est entre parenthèses) ou récupère tes notes avec le bloc Pronote.</div>`; return; }
+  if(!grades.length){ el.innerHTML = `<div class="empty">Aucune note de ${esc(shortOf(trSubj))} enregistrée. Choisis une matière avec des notes (le nombre est entre parenthèses) ou récupère tes notes avec le bloc Pronote.<br><small>${esc(gradeDiag())}</small></div>`; return; }
   const all = done().filter(x => x.matiere === trSubj), t = todayISO();
   const firstAny = [grades[0].date, ...all.map(x => x.date)].sort()[0];
   const start = trDays ? addDays(t, -(trDays - 1)) : firstAny, from = start < firstAny && !trDays ? firstAny : start;
@@ -2385,9 +2396,10 @@ $("#pnFetch").addEventListener("click", async () => {
     renderPronoteHw(data.homeworkError);
     const grades = (data.grades || []).slice().sort((a,b) => (b.date||"").localeCompare(a.date||""));
     $("#pnGradesTitle").hidden = false;
+    if(!data.gradesError && grades.length && S.isParent) toast("Vue parent : les notes s'affichent mais ne sont pas enregistrées. Connecte-toi avec le compte de Kajetan.");
     if(!data.gradesError && grades.length){ saveGrades(grades).then(n => {
       if(lastGradeError){ const m = lastGradeError === "permission-denied" ? "Notes non enregistrées : les règles Firestore refusent la collection « grades » (voir le guide)" : `Notes non enregistrées (${lastGradeError})`; toast(m); const box = $("#pronoteResult"); if(box) box.insertAdjacentHTML("afterbegin", `<div class="empty" style="color:var(--red);margin-bottom:8px">${esc(m)}.</div>`); }
-      else if(n) toast(`${n} nouvelle${n > 1 ? "s" : ""} note${n > 1 ? "s" : ""} enregistrée${n > 1 ? "s" : ""}`); else if(!S.isParent) toast("Notes déjà enregistrées, rien de nouveau");
+      else if(n) toast(`${n} nouvelle${n > 1 ? "s" : ""} note${n > 1 ? "s" : ""} enregistrée${n > 1 ? "s" : ""} sur ${grades.length} reçues`); else if(!S.isParent) toast(`${grades.length} notes reçues, déjà toutes enregistrées`);
       if(n){ renderMatrix(); renderCorr(); renderTrend(); } }); }
     $("#pronoteResult").innerHTML = data.gradesError ? `<div class="empty">${esc(data.gradesError)}</div>` : grades.length ? grades.map(g => `<div class="grade"><div><b>${esc(g.subject)}</b><small>${g.date ? fmtDate(g.date.slice(0,10)) : ""}${g.coefficient ? `, coefficient ${esc(g.coefficient)}` : ""}${g.average ? `, moyenne de la classe ${esc(g.average)}` : ""}</small></div><span class="g">${esc(g.grade)} / ${esc(g.outOf)}</span></div>`).join("")
       : `<div class="empty">Aucune note trouvée.</div>`;
