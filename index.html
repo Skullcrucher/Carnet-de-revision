@@ -2050,12 +2050,12 @@ const gradeKey = g => g.id ? `p${g.id}` : gradeSig(g);
 const hashStr = str => { let h = 5381; for(let i = 0; i < str.length; i++) h = ((h << 5) + h + str.charCodeAt(i)) >>> 0; return h.toString(36); };
 // Identifiant fixe : la même note donne toujours le même document, même si on enregistre deux fois ou depuis deux appareils.
 const gradeDocId = g => g.id ? `p_${String(g.id).replace(/[^A-Za-z0-9_-]/g, "_")}` : `s_${hashStr(gradeSig(g))}`;
-let savingGrades = Promise.resolve(0);
+let savingGrades = Promise.resolve(0), lastGradeError = null;
 function saveGrades(list){ savingGrades = savingGrades.then(() => saveGradesNow(list), () => saveGradesNow(list)); return savingGrades; }   // une seule sauvegarde à la fois
 async function saveGradesNow(list){
   if(S.isParent) return 0;
   const have = new Set(); S.grades.forEach(g => { have.add(g.key); have.add(gradeSig(g)); });
-  let n = 0;
+  let n = 0; lastGradeError = null;
   for(const g of list){
     const key = gradeKey(g), sig = gradeSig(g);
     if(have.has(key) || have.has(sig)) continue;
@@ -2066,7 +2066,7 @@ async function saveGradesNow(list){
     try{
       if(S.grades.some(x => x.id === id)) continue;
       await setDoc(doc(db, "grades", id), obj); S.grades.push({id, ...obj}); n++;
-    }catch(e){}
+    }catch(e){ lastGradeError = e && e.code ? e.code : String(e); }
   }
   return n;
 }
@@ -2385,7 +2385,10 @@ $("#pnFetch").addEventListener("click", async () => {
     renderPronoteHw(data.homeworkError);
     const grades = (data.grades || []).slice().sort((a,b) => (b.date||"").localeCompare(a.date||""));
     $("#pnGradesTitle").hidden = false;
-    if(!data.gradesError && grades.length){ saveGrades(grades).then(n => { if(n) { toast(`${n} nouvelle${n > 1 ? "s" : ""} note${n > 1 ? "s" : ""} enregistrée${n > 1 ? "s" : ""}`); renderMatrix(); renderCorr(); renderTrend(); } }); }
+    if(!data.gradesError && grades.length){ saveGrades(grades).then(n => {
+      if(lastGradeError){ const m = lastGradeError === "permission-denied" ? "Notes non enregistrées : les règles Firestore refusent la collection « grades » (voir le guide)" : `Notes non enregistrées (${lastGradeError})`; toast(m); const box = $("#pronoteResult"); if(box) box.insertAdjacentHTML("afterbegin", `<div class="empty" style="color:var(--red);margin-bottom:8px">${esc(m)}.</div>`); }
+      else if(n) toast(`${n} nouvelle${n > 1 ? "s" : ""} note${n > 1 ? "s" : ""} enregistrée${n > 1 ? "s" : ""}`); else if(!S.isParent) toast("Notes déjà enregistrées, rien de nouveau");
+      if(n){ renderMatrix(); renderCorr(); renderTrend(); } }); }
     $("#pronoteResult").innerHTML = data.gradesError ? `<div class="empty">${esc(data.gradesError)}</div>` : grades.length ? grades.map(g => `<div class="grade"><div><b>${esc(g.subject)}</b><small>${g.date ? fmtDate(g.date.slice(0,10)) : ""}${g.coefficient ? `, coefficient ${esc(g.coefficient)}` : ""}${g.average ? `, moyenne de la classe ${esc(g.average)}` : ""}</small></div><span class="g">${esc(g.grade)} / ${esc(g.outOf)}</span></div>`).join("")
       : `<div class="empty">Aucune note trouvée.</div>`;
   }catch(e){ toast(e.message || "Récupération impossible"); }
