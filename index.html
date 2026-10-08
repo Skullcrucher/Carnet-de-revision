@@ -108,7 +108,7 @@ main{flex:1;min-height:0}
 .view.on{display:grid}
 
 /* Tableau de bord : 3 colonnes, pas de défilement de page */
-.dash{grid-template-columns:350px minmax(0,1fr) 330px;gap:16px;padding:16px}
+.dash{grid-template-columns:350px minmax(0,1fr) 360px;gap:16px;padding:16px}
 .col{min-height:0;overflow:auto;display:flex;flex-direction:column;gap:16px;padding-bottom:2px}
 .col::-webkit-scrollbar{width:8px}
 .col::-webkit-scrollbar-thumb{background:var(--line);border-radius:8px}
@@ -386,6 +386,23 @@ html[data-skin="marianne"]{color-scheme:light;--paper:#F7F8FC;--grid:#E3E7F3;--p
 .legend-row{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:12px;color:var(--ink-2);margin-top:6px}
 .legend-row span{display:inline-flex;align-items:center;gap:6px}.legend-row i{display:inline-block;width:14px;height:4px;border-radius:2px}
 .legend-row i.lg-dot{width:10px;height:10px;border-radius:50%}.legend-row i.lg-dia{width:8px;height:8px;border-radius:0;transform:rotate(45deg);border:1.5px solid var(--ink-3);background:var(--panel)}
+.academy[hidden]{display:none}
+.plan-nav{display:flex;align-items:center;gap:6px}.plan-nav .icon-btn{width:30px;height:30px}
+#planWeek{margin:-6px 0 8px;font-size:12.5px}
+.plan-day{border-top:1px solid var(--line);padding:9px 0}
+.plan-day:first-child{border-top:none}
+.plan-dh{display:flex;align-items:baseline;justify-content:space-between;gap:8px;font-size:13px;font-weight:700}
+.plan-dh small{font-weight:500;color:var(--ink-3);font-size:12px}
+.plan-day.today .plan-dh span:first-child{color:var(--blue)}
+.plan-day.today{background:color-mix(in srgb, var(--blue) 6%, transparent);margin:0 -10px;padding:9px 10px;border-radius:10px;border-top-color:transparent}
+.plan-cours{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px}
+.plan-chip{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;color:var(--ink-2);border:1px solid var(--line);border-radius:999px;padding:1px 8px;background:var(--panel)}
+.plan-chip i{width:7px;height:7px;border-radius:50%;background:var(--c)}
+.plan-it{display:flex;align-items:flex-start;gap:8px;margin-top:6px;font-size:13px}
+.plan-it .dot{margin-top:5px}.plan-it .t{flex:1;min-width:0}.plan-it .t b{font-weight:600}.plan-it .t small{display:block;color:var(--ink-3);font-size:12px;overflow:hidden;text-overflow:ellipsis}
+.plan-it.done .t{color:var(--ink-2)}.plan-it .acts{display:flex;gap:4px}
+.plan-late{color:var(--red);font-weight:600}
+.plan-none{margin-top:4px;font-size:12px;color:var(--ink-3)}
 /* ---------- Écrans plus étroits ---------- */
 @media (max-width:1280px){
   .dash{grid-template-columns:330px minmax(0,1fr)}
@@ -559,9 +576,16 @@ html[data-skin="marianne"]{color-scheme:light;--paper:#F7F8FC;--grid:#E3E7F3;--p
         </div>
       </div>
 
-      <!-- Colonne droite : le village -->
+      <!-- Colonne droite : le planning (le village reste dans son onglet) -->
       <div class="col col-right">
-        <div class="academy" id="academy">
+        <div class="panel plan" id="planPanel">
+          <div class="panel-h"><h2>Planning</h2>
+            <div class="plan-nav"><button class="icon-btn" id="planPrev" aria-label="Semaine précédente">‹</button><button class="btn-line btn-sm" id="planToday">Aujourd'hui</button><button class="icon-btn" id="planNext" aria-label="Semaine suivante">›</button></div>
+          </div>
+          <div class="sub" id="planWeek"></div>
+          <div id="planBody"></div>
+        </div>
+        <div class="academy" id="academy" hidden>
           <div class="ah">
             <h2>Village du savoir</h2>
             <span class="rank" id="gRank">Hameau</span>
@@ -2509,13 +2533,58 @@ function switchView(v){
 $$(".tabs button").forEach(b => b.addEventListener("click", () => switchView(b.dataset.view)));
 $("#seeAllBtn").addEventListener("click", () => switchView("analyse"));
 
+/* ================= Planning de la semaine (tableau de bord) ================= */
+let planOff = 0;
+function renderPlan(){
+  const body = $("#planBody"); if(!body) return;
+  const mon = addDays(mondayOf(todayISO()), 7 * planOff), t = todayISO(), sun = addDays(mon, 6);
+  const dl = iso => new Date(iso + "T00:00:00").toLocaleDateString("fr-FR", {weekday:"long", day:"numeric", month:"short"});
+  const wk = isoWeek(new Date(mon + "T00:00:00"));
+  const weekDone = sumMin(done().filter(s => s.date >= mon && s.date <= sun));
+  const weekTodo = S.sessions.filter(s => s.revoirDate && !s.revu && s.revoirDate >= mon && s.revoirDate <= sun).length;
+  $("#planWeek").textContent = `Semaine ${wk}, du ${dayLabel(mon)} au ${dayLabel(sun)}${wk % 2 ? ", impaire" : ", paire"}. ${fmtMin(weekDone)} révisées, ${weekTodo} révision${weekTodo > 1 ? "s" : ""} prévue${weekTodo > 1 ? "s" : ""}.`;
+  const overdue = S.sessions.filter(s => s.revoirDate && !s.revu && s.revoirDate < t);
+  let html = "";
+  for(let i = 0; i < 7; i++){
+    const iso = addDays(mon, i), isToday = iso === t;
+    const cours = Object.keys(SCHEDULE).filter(m => hasClassOn(m, iso));
+    const evs = S.evals.filter(e => e.date === iso);
+    const todo = S.sessions.filter(s => s.revoirDate === iso && !s.revu);
+    const late = isToday ? overdue : [];
+    const fait = done().filter(s => s.date === iso);
+    const mins = sumMin(fait);
+    const row = (s, lateFlag) => `<div class="plan-it"><span class="dot" style="--c:${colorOf(s.matiere)}"></span><div class="t"><b>${esc(shortOf(s.matiere))}</b> <span class="tag">${s.source === "pronote" ? "Devoir" : s.planifiee ? "Programmée" : "À revoir"}</span>${lateFlag ? ` <span class="plan-late">${whenLabel(s.revoirDate)}</span>` : ""}<small>${esc(s.sujet || "Sans chapitre précisé")}${s.dueDate ? `, pour le ${dayLabel(s.dueDate)}` : ""}</small></div>${S.isParent ? "" : `<div class="acts"><button class="mini go" data-do="${s.id}">Faire</button><button class="x" data-ok="${s.id}" title="Marquer comme faite sans saisir de séance" aria-label="Marquer comme faite">✓</button></div>`}</div>`;
+    const empty = !cours.length && !evs.length && !todo.length && !late.length && !fait.length;
+    html += `<div class="plan-day${isToday ? " today" : ""}"><div class="plan-dh"><span>${esc(dl(iso))}</span><small>${mins ? fmtMin(mins) + " révisées" : ""}</small></div>
+      ${cours.length ? `<div class="plan-cours">${cours.map(m => `<span class="plan-chip" style="--c:${colorOf(m)}"><i></i>${esc(shortOf(m))}</span>`).join("")}</div>` : ""}
+      ${evs.map(e => `<div class="plan-it"><span class="dot" style="--c:${colorOf(e.matiere)}"></span><div class="t"><b>${esc(shortOf(e.matiere))}</b> <span class="tag ${e.type === "dst" ? "dst" : ""}">${e.type === "dst" ? "Devoir sur table" : "Évaluation"}</span><small>${esc(e.chapitre || (e.type === "dst" ? "Programme complet" : "Chapitre non précisé"))}</small></div></div>`).join("")}
+      ${late.map(s => row(s, true)).join("")}${todo.map(s => row(s, false)).join("")}
+      ${fait.map(s => `<div class="plan-it done"><span class="dot" style="--c:${colorOf(s.matiere)}"></span><div class="t">✓ <b>${esc(shortOf(s.matiere))}</b>, ${fmtMin(s.duree || 0)}<small>${esc(s.sujet || "Sans chapitre")}${s.difficulte ? `, difficulté ${s.difficulte} / 5` : ""}</small></div></div>`).join("")}
+      ${empty ? `<div class="plan-none">${isToday ? "Rien de prévu aujourd'hui." : "Rien de prévu."}</div>` : ""}</div>`;
+  }
+  body.innerHTML = html;
+}
+$("#planPrev").addEventListener("click", () => { planOff--; renderPlan(); });
+$("#planNext").addEventListener("click", () => { planOff++; renderPlan(); });
+$("#planToday").addEventListener("click", () => { planOff = 0; renderPlan(); });
+$("#planBody").addEventListener("click", async e => {
+  const doB = e.target.closest("[data-do]"), okB = e.target.closest("[data-ok]");
+  if(doB){ const s = S.sessions.find(x => x.id === doB.dataset.do); if(s) prefill({m:s.matiere, sujet:s.sujet, min:25, evalId:s.evalId, review:s}); }
+  if(okB){
+    if(S.isParent) return;
+    const s = S.sessions.find(x => x.id === okB.dataset.ok); if(!s) return;
+    try{ await updateDoc(doc(db, "sessions", s.id), {revu:true, revuDate:todayISO()}); s.revu = true; s.revuDate = todayISO(); renderAll(); toast("Révision marquée comme faite"); }
+    catch(err){ toast("Mise à jour impossible"); }
+  }
+});
+
 function renderAll(prefix){
   let msgs = [];
   if(gameReady){
     const m1 = checkLevelUps(), m2 = checkQuests(), m3 = m2.length ? checkLevelUps() : [];
     msgs = [...m1, ...m2, ...m3];
   }
-  renderKPIs(); renderSuggestions(); renderDue(); renderEvals(); renderRecent(); updateEntry();
+  renderKPIs(); renderSuggestions(); renderDue(); renderPlan(); renderEvals(); renderRecent(); updateEntry();
   if($("#view-analyse").classList.contains("on")) renderAnalyse();
   if(gameReady){
     renderGameLive(true);
